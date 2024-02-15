@@ -1,0 +1,13 @@
+name: snapit-release
+description: Create a snapshot release of the current changes for a changeset with a comment in a PR
+author: Shopify
+inputs:
+  github-token:
+    description: 'The GH_TOKEN secret can be passed in using {{ secrets.GH_TOKEN }}'
+    required: true
+runs:
+  using: 'node20'
+  main: 'index.js'
+branding:
+  icon: 'aperture'
+  color: 'blue'
