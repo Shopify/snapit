@@ -1,24 +1,50 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const exec = require('@actions/exec');
+const {existsSync} = require('fs');
 
 async function run() {
   try {
+    if (!process.env.GITHUB_TOKEN) {
+      throw new Error(
+        'Please provide the GITHUB_TOKEN to the snapit GitHub action',
+      );
+    }
+
+    if (!process.env.NPM_TOKEN) {
+      throw new Error(
+        'Please provide the NPM_TOKEN to the snapit GitHub action',
+      );
+    }
+
+    const buildScript = core.getInput('build_script', {required: true});
+    if (!buildScript) {
+      throw new Error(
+        'Please provide the build_script to the snapit GitHub action',
+      );
+    }
+
     const {payload} = github.context;
-    const token = core.getInput('github-token');
-    const octokit = github.getOctokit(token);
+    const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+    const isYarn = existsSync('yarn.lock');
 
     if (
-      !payload.pull_request ||
-      !payload.pull_request.body ||
       !payload.comment ||
-      !payload.repository
-    )
+      !payload.repository ||
+      !payload.repository.owner.login ||
+      !payload.issue
+    ) {
       return;
+    }
 
-    if (payload.pull_request.body.includes('/boopboop')) {
+    const ownerRepo = {
+      owner: payload.repository.owner.login,
+      repo: payload.repository.name,
+    };
+
+    if (payload.comment.body === '/snapit') {
       await octokit.rest.reactions.createForIssueComment({
-        ...github.context.repo,
+        ...ownerRepo,
         comment_id: payload.comment.id,
         content: 'eyes',
       });
@@ -26,8 +52,8 @@ async function run() {
       // Check if user has permissions to run /snapit
       const actorPermission = (
         await octokit.rest.repos.getCollaboratorPermissionLevel({
-          ...github.context.repo,
-          username: github.context.actor,
+          ...ownerRepo,
+          username: payload.comment.user.login,
         })
       ).data.permission;
 
@@ -35,8 +61,8 @@ async function run() {
         const errorMessage =
           'Only users with write permission to the repository can run /snapit';
         await octokit.rest.issues.createComment({
-          ...github.context.repo,
-          issue_number: github.context.issue.number,
+          ...ownerRepo,
+          issue_number: payload.issue.number,
           body: errorMessage,
         });
         throw new Error(errorMessage);
@@ -44,8 +70,8 @@ async function run() {
 
       // Check if pull request is from a forked repo
       const pullRequest = await octokit.rest.pulls.get({
-        ...github.context.repo,
-        pull_number: github.context.issue.number,
+        ...ownerRepo,
+        pull_number: payload.issue.number,
       });
 
       if (!pullRequest.data.head.repo) return;
@@ -56,8 +82,8 @@ async function run() {
         const errorMessage =
           '`/snapit` is not supported on pull requests from forked repositories.';
         await octokit.rest.issues.createComment({
-          ...github.context.repo,
-          issue_number: github.context.issue.number,
+          ...ownerRepo,
+          issue_number: payload.issue.number,
           body: errorMessage,
         });
         throw new Error(errorMessage);
@@ -67,19 +93,27 @@ async function run() {
         await exec.exec('git', ['checkout', 'origin/main', '--', '.changeset']);
       }
 
-      await exec.exec('npm', ['ci']);
+      if (isYarn) {
+        await exec.exec('yarn', ['install', '--frozen-lockfile']);
+      } else {
+        await exec.exec('npm', ['ci']);
+      }
 
-      const npmToken = process.env.NPM_TOKEN;
+      // Run build
+      await exec.exec(
+        buildScript.split(' ')[0],
+        buildScript.split(' ').slice(1),
+      );
+
       await exec.exec('bash', [
         '-c',
-        `echo "//registry.npmjs.org/:_authToken=${npmToken}" > "$HOME/.npmrc"`,
+        `echo "//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN}" > "$HOME/.npmrc"`,
       ]);
 
-      // Create snapshot and publish to NPM
       await exec.exec('npx changeset version --snapshot snapshot');
 
-      const {stdout} = await exec.getExecOutput(
-        'npm run publish-packages -- --no-git-tags --snapshot --tag snapshot',
+      const {stdout, stderr} = await exec.getExecOutput(
+        'npx changeset publish --no-git-tags --snapshot --tag snapshot',
       );
 
       const newTags = Array.from(stdout.matchAll(/New tag:\s+([^\s\n]+)/g)).map(
@@ -90,12 +124,16 @@ async function run() {
         const multiple = newTags.length > 1;
 
         await octokit.rest.issues.createComment({
-          ...github.context.repo,
-          issue_number: github.context.issue.number,
+          ...ownerRepo,
+          issue_number: payload.issue.number,
           body:
-            `✨ **Thanks @${github.context.actor}! ` +
-            `Your snapshot${multiple ? 's have' : ' has'} been published to npm.**\n\n` +
-            `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` ` +
+            `✨ **Thanks @${payload.comment.user.login}! ` +
+            `Your snapshot${
+              multiple ? 's have' : ' has'
+            } been published to npm.**\n\n` +
+            `Test the snapshot${
+              multiple ? 's' : ''
+            } by updating your \`package.json\` ` +
             `with the newly published version${multiple ? 's' : ''}:\n` +
             newTags
               .map((tag) => '```sh\n' + `npm install ${tag}\n` + '```')
@@ -103,7 +141,7 @@ async function run() {
         });
 
         await octokit.rest.reactions.createForIssueComment({
-          ...github.context.repo,
+          ...ownerRepo,
           comment_id: payload.comment.id,
           content: 'rocket',
         });

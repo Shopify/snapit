@@ -1,16 +1,13 @@
 name: snapit-release
-description: Create a snapshot release of the current changes for a changeset with a comment in a PR
+description: Create a snapshot NPM release with `/snapit` comment in a PR
 author: Shopify
 inputs:
-  github-token:
-    description: 'The GH_TOKEN secret can be passed in using {{ secrets.GH_TOKEN }}'
-    required: true
-  npm-token:
-    description: 'The NPM_TOKEN'
+  build_script:
+    description: Build script for building the repository before publish to NPM
     required: true
 runs:
-  using: 'node20'
-  main: 'index.js'
+  using: node20
+  main: dist/index.js
 branding:
-  icon: 'aperture'
-  color: 'blue'
+  icon: aperture
+  color: blue
