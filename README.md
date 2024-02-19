@@ -49,10 +49,22 @@ A `NPM_TOKEN` needs to be created and added to the repository to (publish packag
 
 ## Action workflow options
 
-**`build-script`**
+**`build_script` (required)**
 
 The build script required before publishing to NPM.
 
+**`comment_command` (optional, default `/snapit`)**
+
+The comment to write to trigger the creation of a snapshot.
+
 ## Changelog
 
-- `v0.0.1` initial version used by `@shopify/polaris`
+**`v0.0.2`**
+
+- Install comment recommends `yarn add` if the project has a `yarn.lock`
+- Fix issue with PR changes not being included in snapshot version
+- Optionally change the comment to trigger the snapshot with the `comment_command` input
+
+**`v0.0.1`**
+
+- Initial version used by `@shopify/polaris`

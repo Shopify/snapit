@@ -1,6 +1,6 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const exec = require('@actions/exec');
+const {exec, getExecOutput} = require('@actions/exec');
 const {existsSync} = require('fs');
 
 async function run() {
@@ -42,7 +42,8 @@ async function run() {
       repo: payload.repository.name,
     };
 
-    if (payload.comment.body === '/snapit') {
+    const commentCommands = core.getInput('comment_command').split(',');
+    if (commentCommands.indexOf(payload.comment.body) !== -1) {
       await octokit.rest.reactions.createForIssueComment({
         ...ownerRepo,
         comment_id: payload.comment.id,
@@ -89,32 +90,38 @@ async function run() {
         throw new Error(errorMessage);
       }
 
+      await exec('gh', ['pr', 'checkout', payload.issue.number.toString()], {
+        silent: true,
+      });
+
       if (process.env.GITHUB_REF === 'refs/heads/changeset-release/main') {
-        await exec.exec('git', ['checkout', 'origin/main', '--', '.changeset']);
+        await exec('git', ['checkout', 'origin/main', '--', '.changeset']);
       }
 
       if (isYarn) {
-        await exec.exec('yarn', ['install', '--frozen-lockfile']);
+        await exec('yarn', ['install', '--frozen-lockfile']);
       } else {
-        await exec.exec('npm', ['ci']);
+        await exec('npm', ['ci']);
       }
 
       // Run build
-      await exec.exec(
-        buildScript.split(' ')[0],
-        buildScript.split(' ').slice(1),
-      );
+      await exec(buildScript.split(' ')[0], buildScript.split(' ').slice(1));
 
-      await exec.exec('bash', [
+      await exec('bash', [
         '-c',
         `echo "//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN}" > "$HOME/.npmrc"`,
       ]);
 
-      await exec.exec('npx changeset version --snapshot snapshot');
+      await exec('npx', ['changeset', 'version', '--snapshot', 'snapshot']);
 
-      const {stdout, stderr} = await exec.getExecOutput(
-        'npx changeset publish --no-git-tags --snapshot --tag snapshot',
-      );
+      const {stdout} = await getExecOutput('npx', [
+        'changeset',
+        'publish',
+        '--no-git-tags',
+        '--snapshot',
+        '--tag',
+        'snapshot',
+      ]);
 
       const newTags = Array.from(stdout.matchAll(/New tag:\s+([^\s\n]+)/g)).map(
         ([_, tag]) => tag,
@@ -136,7 +143,12 @@ async function run() {
             } by updating your \`package.json\` ` +
             `with the newly published version${multiple ? 's' : ''}:\n` +
             newTags
-              .map((tag) => '```sh\n' + `npm install ${tag}\n` + '```')
+              .map(
+                (tag) =>
+                  '```sh\n' +
+                  `${isYarn ? 'yarn add' : 'npm install'} ${tag}\n` +
+                  '```',
+              )
               .join('\n'),
         });
 
