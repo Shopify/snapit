@@ -35,6 +35,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         with:
           build_script: npm run build
+          comment_command: /snapit
 ```
 
 ## Environment Variables
@@ -49,15 +50,21 @@ A `NPM_TOKEN` needs to be created and added to the repository to (publish packag
 
 ## Action workflow options
 
-**`build_script` (required)**
+**`build_script` (optional)**
 
-The build script required before publishing to NPM.
+The build script to run before publishing to NPM.
 
 **`comment_command` (optional, default `/snapit`)**
 
 The comment to write to trigger the creation of a snapshot.
 
 ## Changelog
+
+**`v0.0.3`**
+
+- Fix issue with Version Packages PRs not resetting changesets
+- Allow `build_script` to have `&&` when multiple scripts are needed
+- Make `build_script` optional for projects that do not need a build
 
 **`v0.0.2`**
 

@@ -4,7 +4,6 @@ author: Shopify
 inputs:
   build_script:
     description: Build script for building the repository before publish to NPM
-    required: true
   comment_command:
     description: A comma seperated list of comment commands to trigger the action
     default: '/snapit'

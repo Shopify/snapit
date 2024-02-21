@@ -1,7 +1,7 @@
 {
   "name": "snapit",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "Create a snapshot NPM release with `/snapit` comment in a PR",
   "scripts": {
     "build": "ncc build index.js --minify --license LICENSE",

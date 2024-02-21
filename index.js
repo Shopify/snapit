@@ -17,13 +17,6 @@ async function run() {
       );
     }
 
-    const buildScript = core.getInput('build_script', {required: true});
-    if (!buildScript) {
-      throw new Error(
-        'Please provide the build_script to the snapit GitHub action',
-      );
-    }
-
     const {payload} = github.context;
     const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
     const isYarn = existsSync('yarn.lock');
@@ -94,7 +87,16 @@ async function run() {
         silent: true,
       });
 
-      if (process.env.GITHUB_REF === 'refs/heads/changeset-release/main') {
+      const {stdout: currentBranch} = await getExecOutput('git', [
+        'branch',
+        '--show-current',
+      ]);
+
+      // Because changeset entries are consumed and removed on the
+      // 'changeset-release/main' branch, we need to reset the files
+      // so the following 'changeset version --snapshot' command will
+      // regenerate the package version bumps with the snapshot releases
+      if (currentBranch.trim() === 'changeset-release/main') {
         await exec('git', ['checkout', 'origin/main', '--', '.changeset']);
       }
 
@@ -104,8 +106,15 @@ async function run() {
         await exec('npm', ['ci']);
       }
 
-      // Run build
-      await exec(buildScript.split(' ')[0], buildScript.split(' ').slice(1));
+      // Run build if added option
+      const buildScript = core.getInput('build_script');
+      if (buildScript) {
+        const commands = buildScript.split('&&').map((cmd) => cmd.trim());
+        for (const cmd of commands) {
+          const [cmdName, ...cmdArgs] = cmd.split(' ');
+          await exec(cmdName, cmdArgs);
+        }
+      }
 
       await exec('bash', [
         '-c',
