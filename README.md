@@ -60,6 +60,11 @@ The comment to write to trigger the creation of a snapshot.
 
 ## Changelog
 
+**`v0.0.4`**
+
+- Improve error handling
+- Update action to use TypeScript
+
 **`v0.0.3`**
 
 - Fix issue with Version Packages PRs not resetting changesets
