@@ -60,6 +60,10 @@ The comment to write to trigger the creation of a snapshot.
 
 ## Changelog
 
+**`v0.0.5`**
+
+- Reorder `build_script` to run after `changeset version`
+
 **`v0.0.4`**
 
 - Improve error handling

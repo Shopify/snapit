@@ -103,16 +103,6 @@ try {
       await exec('npm', ['ci']);
     }
 
-    // Run build if added option
-    const buildScript = core.getInput('build_script');
-    if (buildScript) {
-      const commands = buildScript.split('&&').map((cmd) => cmd.trim());
-      for (const cmd of commands) {
-        const [cmdName, ...cmdArgs] = cmd.split(/\s+/);
-        await exec(cmdName, cmdArgs);
-      }
-    }
-
     await exec(
       'bash',
       [
@@ -123,6 +113,16 @@ try {
     );
 
     await exec('npx', ['changeset', 'version', '--snapshot', 'snapshot']);
+
+    // Run build if added option
+    const buildScript = core.getInput('build_script');
+    if (buildScript) {
+      const commands = buildScript.split('&&').map((cmd) => cmd.trim());
+      for (const cmd of commands) {
+        const [cmdName, ...cmdArgs] = cmd.split(/\s+/);
+        await exec(cmdName, cmdArgs);
+      }
+    }
 
     const {stdout} = await getExecOutput('npx', [
       'changeset',
