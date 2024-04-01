@@ -159,8 +159,8 @@ try {
       newTags
         .map((tag) =>
           tag.startsWith('@')
-            ? `"@${tag.substring(1).split('@')[0]}":"${tag.substring(1).split('@')[1]}"`
-            : `"${tag.split('@')[0]}":"${tag.split('@')[1]}"`,
+            ? `"@${tag.substring(1).split('@')[0]}": "${tag.substring(1).split('@')[1]}"`
+            : `"${tag.split('@')[0]}": "${tag.split('@')[1]}"`,
         )
         .join('\n') +
       '\n```';

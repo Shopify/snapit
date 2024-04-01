@@ -60,6 +60,10 @@ The comment to write to trigger the creation of a snapshot.
 
 ## Changelog
 
+**`v0.0.8`**
+
+- Add space between package name and version in GitHub comment
+
 **`v0.0.7`**
 
 - Simplify GitHub comment
