@@ -145,34 +145,30 @@ try {
     }
 
     const multiple = newTags.length > 1;
-    const installCommands = [
-      'pnpm add --workspace-root',
-      'yarn add',
-      'npm install',
-    ];
+
+    const body =
+      `🫰✨ **Thanks @${payload.comment.user.login}! ` +
+      `Your snapshot${
+        multiple ? 's have' : ' has'
+      } been published to npm.**\n\n` +
+      `Test the snapshot${
+        multiple ? 's' : ''
+      } by updating your \`package.json\` ` +
+      `with the newly published version${multiple ? 's' : ''}:\n` +
+      '```json\n' +
+      newTags
+        .map((tag) =>
+          tag.startsWith('@')
+            ? `"@${tag.substring(1).split('@')[0]}":"${tag.substring(1).split('@')[1]}"`
+            : `"${tag.split('@')[0]}":"${tag.split('@')[1]}"`,
+        )
+        .join('\n') +
+      '\n```';
 
     await octokit.rest.issues.createComment({
       ...ownerRepo,
       issue_number: payload.issue.number,
-      body:
-        `🫰✨ **Thanks @${payload.comment.user.login}! ` +
-        `Your snapshot${
-          multiple ? 's have' : ' has'
-        } been published to npm.**\n\n` +
-        `Test the snapshot${
-          multiple ? 's' : ''
-        } by updating your \`package.json\` ` +
-        `with the newly published version${multiple ? 's' : ''}:\n` +
-        newTags
-          .map((tag) =>
-            installCommands
-              .map(
-                (installCommand) =>
-                  '```sh\n' + `${installCommand} ${tag}\n` + '```',
-              )
-              .join('\n'),
-          )
-          .join('\n---\n'),
+      body,
     });
 
     await octokit.rest.reactions.createForIssueComment({

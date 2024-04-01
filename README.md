@@ -60,10 +60,13 @@ The comment to write to trigger the creation of a snapshot.
 
 ## Changelog
 
+**`v0.0.7`**
+
+- Simplify GitHub comment
+
 **`v0.0.6`**
 
 - Add support for pnpm
-- Simplify GitHub comment
 
 **`v0.0.5`**
 
