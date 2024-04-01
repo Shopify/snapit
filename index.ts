@@ -19,6 +19,8 @@ try {
   const {payload} = github.context;
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const isYarn = existsSync('yarn.lock');
+  const isPnpm = existsSync('pnpm-lock.yaml');
+  const isNpm = existsSync('package-lock.json');
 
   if (
     !payload.comment ||
@@ -99,7 +101,11 @@ try {
 
     if (isYarn) {
       await exec('yarn', ['install', '--frozen-lockfile']);
-    } else {
+    }
+    if (isPnpm) {
+      await exec('pnpm', ['install']);
+    }
+    if (isNpm) {
       await exec('npm', ['ci']);
     }
 
@@ -142,6 +148,10 @@ try {
     }
 
     const multiple = newTags.length > 1;
+    let installMessage;
+    if (isYarn) installMessage = 'yarn add';
+    else if (isPnpm) installMessage = 'pnpm add --workspace-root';
+    else if (isNpm) installMessage = 'npm install';
 
     await octokit.rest.issues.createComment({
       ...ownerRepo,
@@ -156,12 +166,7 @@ try {
         } by updating your \`package.json\` ` +
         `with the newly published version${multiple ? 's' : ''}:\n` +
         newTags
-          .map(
-            (tag) =>
-              '```sh\n' +
-              `${isYarn ? 'yarn add' : 'npm install'} ${tag}\n` +
-              '```',
-          )
+          .map((tag) => '```sh\n' + `${installMessage} ${tag}\n` + '```')
           .join('\n'),
     });
 
