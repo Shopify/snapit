@@ -20,7 +20,6 @@ try {
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const isYarn = existsSync('yarn.lock');
   const isPnpm = existsSync('pnpm-lock.yaml');
-  const isNpm = existsSync('package-lock.json');
 
   if (
     !payload.comment ||
@@ -101,11 +100,9 @@ try {
 
     if (isYarn) {
       await exec('yarn', ['install', '--frozen-lockfile']);
-    }
-    if (isPnpm) {
+    } else if (isPnpm) {
       await exec('pnpm', ['install']);
-    }
-    if (isNpm) {
+    } else {
       await exec('npm', ['ci']);
     }
 
@@ -151,7 +148,7 @@ try {
     let installMessage;
     if (isYarn) installMessage = 'yarn add';
     else if (isPnpm) installMessage = 'pnpm add --workspace-root';
-    else if (isNpm) installMessage = 'npm install';
+    else installMessage = 'npm install';
 
     await octokit.rest.issues.createComment({
       ...ownerRepo,
