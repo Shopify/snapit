@@ -166,7 +166,10 @@ try {
         newTags
           .map((tag) =>
             installCommands
-              .map((installCommand) => '```sh\n' + `${installCommand} ${tag}\n` + '```')
+              .map(
+                (installCommand) =>
+                  '```sh\n' + `${installCommand} ${tag}\n` + '```',
+              )
               .join('\n'),
           )
           .join('\n---\n'),
