@@ -101,7 +101,7 @@ try {
     if (isYarn) {
       await exec('yarn', ['install', '--frozen-lockfile']);
     } else if (isPnpm) {
-      await exec('pnpm', ['install']);
+      await exec('pnpm', ['install', '--frozen-lockfile']);
     } else {
       await exec('npm', ['ci']);
     }
