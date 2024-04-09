@@ -10,7 +10,9 @@ This GitHub action allows for automation of [Chagesets Snapshot Release](https:/
 
 ## Usage
 
-Create a `.github/workflows/snapit.yml` file.
+Create a `.github/workflows/snapit.yml` file with the following contents.
+
+**Deploy to NPM**
 
 ```yml
 name: Snapit
@@ -34,8 +36,37 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         with:
-          build_script: npm run build
-          comment_command: /snapit
+          build_script: pnpm build # Optional
+          comment_command: /snapit # Default value not required
+```
+
+**Deploy to branch**
+
+This is useful when orchestrating releases outside of GitHub actions or with other package registries.
+
+```yml
+name: Snapit
+
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  snapit:
+    name: Snapit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+
+      - name: Create snapshot version
+        uses: Shopify/snapit@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: snapshot-release
+          comment_command: /snapit # Default value not required
 ```
 
 ## Environment Variables
@@ -52,13 +83,27 @@ A `NPM_TOKEN` needs to be created and added to the repository to (publish packag
 
 **`build_script` (optional)**
 
-The build script to run before publishing to NPM.
+The build script to run before publishing.
 
 **`comment_command` (optional, default `/snapit`)**
 
 The comment to write to trigger the creation of a snapshot.
 
+**`branch` (optional)**
+
+Push the changes to a branch instead of publishing to the NPM registry.
+
+**`custom_message` (optional)**
+
+Custom message to added to the beginning of the release GitHub comment.
+
 ## Changelog
+
+**`v0.0.9`**
+
+- Add `branch` to publish to other package services
+- Add `custom_message` to add a markdown string to the generated GitHub comment
+- Add missing comma to GitHub comment seperating versions
 
 **`v0.0.8`**
 
