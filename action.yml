@@ -3,10 +3,14 @@ description: Create a snapshot NPM release with `/snapit` comment in a PR
 author: Shopify
 inputs:
   build_script:
-    description: Build script for building the repository before publish to NPM
+    description: Build script for building the repository before publishing.
   comment_command:
     description: A comma seperated list of comment commands to trigger the action
     default: '/snapit'
+  branch:
+    description: Push the changes to a branch instead of publishing to the NPM registry.
+  custom_message:
+    description: Custom message to added to the beginning of the release GitHub comment.
 runs:
   using: node20
   main: dist/index.js
