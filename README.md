@@ -99,6 +99,12 @@ Custom message to added to the beginning of the release GitHub comment.
 
 ## Changelog
 
+**`v0.0.10`**
+
+- Disallow private packages from being published
+- Check for snapshots before getting the timestamp
+- Skip packages that do not have a `name` or `version`
+
 **`v0.0.9`**
 
 - Add `branch` to publish to other package services

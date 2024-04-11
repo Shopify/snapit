@@ -124,14 +124,16 @@ try {
     const {packages} = await getPackages(process.cwd());
     const snapshots = [];
     packages.forEach(({packageJson}) => {
-      const {name, version} = packageJson;
-      if (version.includes(versionPrefix)) snapshots.push(`${name}@${version}`);
+      const {name, version, private: isPrivate} = packageJson;
+      if (name && version && !isPrivate && version.includes(versionPrefix))
+        snapshots.push(`${name}@${version}`);
     });
-    const snapshotTimestamp = snapshots[0].split('-').at(-1);
 
     if (!snapshots.length) {
       throw new Error('Changeset publish did not create new tags.');
     }
+
+    const snapshotTimestamp = snapshots[0].split('-').at(-1);
 
     if (branch) {
       // We all think this is weird
