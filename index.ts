@@ -125,7 +125,8 @@ try {
     const snapshots = [];
     packages.forEach(({packageJson}) => {
       const {name, version} = packageJson;
-      if (version.includes(versionPrefix)) snapshots.push(`${name}@${version}`);
+      if (name && version && version.includes(versionPrefix))
+        snapshots.push(`${name}@${version}`);
     });
     const snapshotTimestamp = snapshots[0].split('-').at(-1);
 
