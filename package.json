@@ -7,6 +7,7 @@
   "scripts": {
     "build": "ncc build index.ts --minify --license LICENSE",
     "watch": "ncc build index.ts --watch --minify",
+    "test": "npm run build && ncc run index.test.ts",
     "lint": "prettier --check . !dist/index.js",
     "format": "prettier '.' !dist/index.js --write"
   },
