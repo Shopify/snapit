@@ -124,8 +124,8 @@ try {
     const {packages} = await getPackages(process.cwd());
     const snapshots = [];
     packages.forEach(({packageJson}) => {
-      const {name, version} = packageJson;
-      if (name && version && version.includes(versionPrefix))
+      const {name, version, private: isPrivate} = packageJson;
+      if (name && version && !isPrivate && version.includes(versionPrefix))
         snapshots.push(`${name}@${version}`);
     });
     const snapshotTimestamp = snapshots[0].split('-').at(-1);
