@@ -112,15 +112,6 @@ try {
 
     await exec(changesetBinary, ['version', '--snapshot', versionPrefix]);
 
-    // Run after `changeset version` so build scripts can use updated versions
-    if (buildScript) {
-      const commands = buildScript.split('&&').map((cmd) => cmd.trim());
-      for (const cmd of commands) {
-        const [cmdName, ...cmdArgs] = cmd.split(/\s+/);
-        await exec(cmdName, cmdArgs);
-      }
-    }
-
     const {packages} = await getPackages(process.cwd());
     const snapshots = [];
     packages.forEach(({packageJson}) => {
@@ -134,6 +125,15 @@ try {
     }
 
     const snapshotTimestamp = snapshots[0].split('-').at(-1);
+
+    // Run after `changeset version` so build scripts can use updated versions
+    if (buildScript) {
+      const commands = buildScript.split('&&').map((cmd) => cmd.trim());
+      for (const cmd of commands) {
+        const [cmdName, ...cmdArgs] = cmd.split(/\s+/);
+        await exec(cmdName, cmdArgs);
+      }
+    }
 
     if (branch) {
       // We all think this is weird
