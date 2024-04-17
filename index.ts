@@ -186,8 +186,8 @@ try {
     const multiple = snapshots.length > 1;
 
     const introMessage = branch
-      ? `Your snapshot${multiple ? 's are' : 'is'} being published.**\n\n`
-      : `Your snapshot${multiple ? 's have' : 'has'} been published to npm.**\n\n`;
+      ? `Your snapshot${multiple ? 's are' : ' is'} being published.**\n\n`
+      : `Your snapshot${multiple ? 's have' : ' has'} been published to npm.**\n\n`;
 
     const customMessage = core.getInput('custom_message');
 
