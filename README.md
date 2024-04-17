@@ -99,6 +99,10 @@ Custom message to added to the beginning of the release GitHub comment.
 
 ## Changelog
 
+**`v0.0.12`**
+
+- Fix typo in snapshot comment message
+
 **`v0.0.11`**
 
 - Capture snapshot versions before `build_script`
