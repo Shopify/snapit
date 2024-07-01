@@ -109,6 +109,11 @@ In workspaces where many packages are deployed, use this filter if you only want
 
 ## Changelog
 
+**`v0.0.13`**
+
+- Add `install_instructions` to customize the install details on the generated GitHub comment.
+- Add `package_filter` to allow including just some packages on the generated GitHub comment.
+
 **`v0.0.12`**
 
 - Fix typo in snapshot comment message
