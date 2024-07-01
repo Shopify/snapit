@@ -32,7 +32,7 @@ try {
 
   const buildScript = core.getInput('build_script');
   const showGlobalOutput = core.getInput('install_instructions') === 'global';
-  const packageOutputFilter: string[] = core.getInput('package_filter') ?? [];
+  const packageOutputFilter: string[] = core.getInput('package_filter').split(',');
   const branch = core.getInput('branch');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const isYarn = existsSync('yarn.lock');

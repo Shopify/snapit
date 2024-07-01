@@ -97,6 +97,16 @@ Push the changes to a branch instead of publishing to the NPM registry.
 
 Custom message to added to the beginning of the release GitHub comment.
 
+**`install_instructions` (optional)**
+
+Format for the test instructions in the Github comment. By default it shows a json example to update your local dependencies.
+Use `global` if you want to see the npm command to install your packages globally instead.
+
+**`package_filter` (optional)**
+
+In workspaces where many packages are deployed, use this filter if you only want to include some of them in the release GitHub comment.
+(To specify multiple packages, separate using commas)
+
 ## Changelog
 
 **`v0.0.12`**

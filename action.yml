@@ -11,6 +11,11 @@ inputs:
     description: Push the changes to a branch instead of publishing to the NPM registry.
   custom_message:
     description: Custom message to added to the beginning of the release GitHub comment.
+  install_instructions:
+    description: How to show the install instructions of the published packages. Use 'global' to show the install command for global packages. Defaults to a local dependencies json example.
+  package_filter:
+    description: Which packages to include in the final output. All pacakges are still published, but only those in this list are shown in the final message. If empty, all packages are included.
+
 runs:
   using: node20
   main: dist/index.js
