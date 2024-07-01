@@ -32,7 +32,7 @@ try {
 
   const buildScript = core.getInput('build_script');
   const showGlobalOutput = core.getInput('install_instructions') === 'global';
-  const packageOutputFilter: string[] = core.getInput('package_filter').split(',');
+  const packageOutputFilter = core.getInput('package_filter').split(',');
   const branch = core.getInput('branch');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const isYarn = existsSync('yarn.lock');
@@ -186,10 +186,12 @@ try {
     }
 
     const filteredSnapshots = snapshots.filter((tag: string) => {
-      return !packageOutputFilter || packageOutputFilter.some((filter) => tag.startsWith(filter+"@"));
-    })
+      return (
+        !packageOutputFilter ||
+        packageOutputFilter.some((filter) => tag.startsWith(filter + '@'))
+      );
+    });
     const multiple = filteredSnapshots.length > 1;
-
 
     const introMessage = branch
       ? `Your snapshot${multiple ? 's are' : ' is'} being published.**\n\n`
@@ -197,12 +199,14 @@ try {
 
     const customMessage = core.getInput('custom_message');
 
-    const globalPackagesMessage = `Test the snapshot${multiple ? 's' : ''} by installing the package${multiple ? 's' : ''} globally:\n` +
+    const globalPackagesMessage =
+      `Test the snapshot${multiple ? 's' : ''} by installing the package${multiple ? 's' : ''} globally:\n` +
       '```bash\n' +
       filteredSnapshots.map((pkg) => `npm i -g ${pkg}`).join('\n') +
-      '\n```\n\n'
+      '\n```\n\n';
 
-    const localDependenciesMessage = `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` ` +
+    const localDependenciesMessage =
+      `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` ` +
       `with the newly published version${multiple ? 's' : ''}:\n` +
       '```json\n' +
       filteredSnapshots
@@ -212,12 +216,12 @@ try {
             : `"${tag.split('@')[0]}": "${tag.split('@')[1]}"`,
         )
         .join(',\n') +
-      '\n```'
+      '\n```';
 
     const body =
       `🫰✨ **Thanks @${payload.comment.user.login}! ${introMessage}` +
       `${customMessage ? `${customMessage} ` : ''}` +
-      `${showGlobalOutput ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}`
+      `${showGlobalOutput ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}`;
 
     await octokit.rest.issues.createComment({
       ...ownerRepo,
