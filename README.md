@@ -97,10 +97,10 @@ Push the changes to a branch instead of publishing to the NPM registry.
 
 Custom message to added to the beginning of the release GitHub comment.
 
-**`install_instructions` (optional)**
+**`is_global` (optional)**
 
-Format for the test instructions in the Github comment. By default it shows a json example to update your local dependencies.
-Use `global` if you want to see the npm command to install your packages globally instead.
+If true, the generated GitHub comment will show the npm command to install your packages globally.
+Otherwise, the default behaviour is to show a json example to update your local dependencies.
 
 **`package_filter` (optional)**
 
@@ -111,7 +111,7 @@ In workspaces where many packages are deployed, use this filter if you only want
 
 **`v0.0.13`**
 
-- Add `install_instructions` to customize the install details on the generated GitHub comment.
+- Add `is_global` to show global npm installation instructions on the generated GitHub comment.
 - Add `package_filter` to allow including just some packages on the generated GitHub comment.
 
 **`v0.0.12`**

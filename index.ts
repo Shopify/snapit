@@ -31,7 +31,7 @@ try {
   };
 
   const buildScript = core.getInput('build_script');
-  const showGlobalOutput = core.getInput('install_instructions') === 'global';
+  const isGlobal = core.getBooleanInput('is_global')
   const packageOutputFilter = core.getInput('package_filter').split(',');
   const branch = core.getInput('branch');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
@@ -221,7 +221,7 @@ try {
     const body =
       `🫰✨ **Thanks @${payload.comment.user.login}! ${introMessage}` +
       `${customMessage ? `${customMessage} ` : ''}` +
-      `${showGlobalOutput ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}`;
+      `${isGlobal ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}`;
 
     await octokit.rest.issues.createComment({
       ...ownerRepo,
