@@ -31,8 +31,10 @@ try {
   };
 
   const buildScript = core.getInput('build_script');
-  const isGlobal = core.getBooleanInput('is_global')
-  const packageOutputFilter = core.getInput('github_comment_included_packages').split(',');
+  const isGlobal = core.getBooleanInput('is_global');
+  const packageOutputFilter = core
+    .getInput('github_comment_included_packages')
+    .split(',');
   const branch = core.getInput('branch');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const isYarn = existsSync('yarn.lock');
