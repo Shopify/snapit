@@ -31,7 +31,7 @@ try {
   };
 
   const buildScript = core.getInput('build_script');
-  const isGlobal = core.getBooleanInput('is_global');
+  const isGlobal = core.getInput('is_global') === 'true';
   const packageOutputFilter = core
     .getInput('github_comment_included_packages')
     .split(',');
