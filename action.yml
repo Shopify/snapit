@@ -13,7 +13,7 @@ inputs:
     description: Custom message to added to the beginning of the release GitHub comment.
   is_global:
     description: If true, the GitHub comment will show instructions to install a global npm package instead of the normal JSON dependencies.
-  package_filter:
+  github_comment_included_packages:
     description: Which packages to include in the final output. All pacakges are still published, but only those in this list are shown in the final message. If empty, all packages are included.
 
 runs:

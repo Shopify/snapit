@@ -102,7 +102,7 @@ Custom message to added to the beginning of the release GitHub comment.
 If true, the generated GitHub comment will show the npm command to install your packages globally.
 Otherwise, the default behaviour is to show a json example to update your local dependencies.
 
-**`package_filter` (optional)**
+**`github_comment_included_packages` (optional)**
 
 In workspaces where many packages are deployed, use this filter if you only want to include some of them in the release GitHub comment.
 (To specify multiple packages, separate using commas)
@@ -112,7 +112,7 @@ In workspaces where many packages are deployed, use this filter if you only want
 **`v0.0.13`**
 
 - Add `is_global` to show global npm installation instructions on the generated GitHub comment.
-- Add `package_filter` to allow including just some packages on the generated GitHub comment.
+- Add `github_comment_included_packages` to allow including just some packages on the generated GitHub comment.
 
 **`v0.0.12`**
 
