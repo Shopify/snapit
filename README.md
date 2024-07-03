@@ -97,7 +97,7 @@ Push the changes to a branch instead of publishing to the NPM registry.
 
 Custom message to added to the beginning of the release GitHub comment.
 
-**`is_global` (optional)**
+**`global_install` (optional)**
 
 If true, the generated GitHub comment will show the npm command to install your packages globally.
 Otherwise, the default behaviour is to show a json example to update your local dependencies.
