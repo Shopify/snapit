@@ -99,7 +99,7 @@ Custom message to added to the beginning of the release GitHub comment.
 
 **`global_install` (optional)**
 
-If true, the generated GitHub comment will show the npm command to install your packages globally.
+If true, the generated GitHub comment will show the command to install your packages globally.
 Otherwise, the default behaviour is to show a json example to update your local dependencies.
 
 **`github_comment_included_packages` (optional)**
