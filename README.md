@@ -111,7 +111,7 @@ In workspaces where many packages are deployed, use this filter if you only want
 
 **`v0.0.13`**
 
-- Add `is_global` to show global npm installation instructions on the generated GitHub comment.
+- Add `global_install` to show global npm installation instructions on the generated GitHub comment.
 - Add `github_comment_included_packages` to allow including just some packages on the generated GitHub comment.
 
 **`v0.0.12`**
