@@ -201,10 +201,18 @@ try {
 
     const customMessage = core.getInput('custom_message');
 
+    const globalInstallMessage = isYarn
+      ? 'yarn global add'
+      : isPnpm
+        ? 'pnpm i -g'
+        : 'npm i -g';
+
     const globalPackagesMessage =
       `Test the snapshot${multiple ? 's' : ''} by installing the package${multiple ? 's' : ''} globally:\n` +
       '```bash\n' +
-      filteredSnapshots.map((pkg) => `npm i -g ${pkg}`).join('\n') +
+      filteredSnapshots
+        .map((pkg) => `${globalInstallMessage} ${pkg}`)
+        .join('\n') +
       '\n```\n\n';
 
     const localDependenciesMessage =
