@@ -216,8 +216,9 @@ try {
 
     const defaultPrefix = `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:\n`;
 
+    const inputPrefix = core.getInput('custom_message_prefix');
     const customMessagePrefix =
-      core.getInput('custom_message_prefix') ?? defaultPrefix;
+      inputPrefix.length > 0 ? `${inputPrefix}\n` : defaultPrefix;
     const customMessageSuffix = core.getInput('custom_message_suffix');
 
     const globalInstallMessage = isYarn
