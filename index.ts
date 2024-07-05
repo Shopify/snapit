@@ -193,26 +193,13 @@ try {
         silentOption,
       );
 
-      try {
-        await exec(changesetBinary, [
-          'publish',
-          '--no-git-tags',
-          '--snapshot',
-          '--tag',
-          versionPrefix,
-        ]);
-      } catch (error) {
-        await octokit.rest.issues.createComment({
-          ...ownerRepo,
-          issue_number: payload.issue.number,
-          body: 'Changeset publish failed',
-        });
-        await octokit.rest.reactions.createForIssueComment({
-          ...ownerRepo,
-          comment_id: payload.comment.id,
-          content: '-1',
-        });
-      }
+      await exec(changesetBinary, [
+        'publish',
+        '--no-git-tags',
+        '--snapshot',
+        '--tag',
+        versionPrefix,
+      ]);
     }
 
     const filteredSnapshots = snapshots.filter((snapshot: Snapshot) => {
