@@ -117,18 +117,33 @@ try {
     await exec(changesetBinary, ['version', '--snapshot', versionPrefix]);
 
     const {packages} = await getPackages(process.cwd());
-    const snapshots = [];
+
+    interface Snapshot {
+      package: string;
+      version: string;
+      timestamp: string;
+      fullString: string;
+    }
+
+    const snapshots: Snapshot[] = [];
     packages.forEach(({packageJson}) => {
       const {name, version, private: isPrivate} = packageJson;
-      if (name && version && !isPrivate && version.includes(versionPrefix))
-        snapshots.push(`${name}@${version}`);
+      if (name && version && !isPrivate && version.includes(versionPrefix)) {
+        const timestamp = version.split('-').at(-1);
+        snapshots.push({
+          package: name,
+          version,
+          timestamp,
+          fullString: `${name}@${version}`,
+        });
+      }
     });
 
     if (!snapshots.length) {
       throw new Error('Changeset publish did not create new tags.');
     }
 
-    const snapshotTimestamp = snapshots[0].split('-').at(-1);
+    const snapshotTimestamp = snapshots[0].timestamp;
 
     // Run after `changeset version` so build scripts can use updated versions
     if (buildScript) {
@@ -187,10 +202,10 @@ try {
       ]);
     }
 
-    const filteredSnapshots = snapshots.filter((tag: string) => {
+    const filteredSnapshots = snapshots.filter((snapshot: Snapshot) => {
       return (
         !packageOutputFilter ||
-        packageOutputFilter.some((filter) => tag.startsWith(filter + '@'))
+        packageOutputFilter.some((filter) => snapshot.package === filter)
       );
     });
     const multiple = filteredSnapshots.length > 1;
@@ -199,7 +214,11 @@ try {
       ? `Your snapshot${multiple ? 's are' : ' is'} being published.**\n\n`
       : `Your snapshot${multiple ? 's have' : ' has'} been published to npm.**\n\n`;
 
-    const customMessage = core.getInput('custom_message');
+    const defaultPrefix = `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:\n`;
+
+    const customMessagePrefix =
+      core.getInput('custom_message_prefix') ?? defaultPrefix;
+    const customMessageSuffix = core.getInput('custom_message_suffix');
 
     const globalInstallMessage = isYarn
       ? 'yarn global add'
@@ -208,30 +227,24 @@ try {
         : 'npm i -g';
 
     const globalPackagesMessage =
-      `Test the snapshot${multiple ? 's' : ''} by installing the package${multiple ? 's' : ''} globally:\n` +
       '```bash\n' +
       filteredSnapshots
-        .map((pkg) => `${globalInstallMessage} ${pkg}`)
+        .map((pkg) => `${globalInstallMessage} ${pkg.fullString}`)
         .join('\n') +
       '\n```\n\n';
 
     const localDependenciesMessage =
-      `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` ` +
-      `with the newly published version${multiple ? 's' : ''}:\n` +
       '```json\n' +
       filteredSnapshots
-        .map((tag) =>
-          tag.startsWith('@')
-            ? `"@${tag.substring(1).split('@')[0]}": "${tag.substring(1).split('@')[1]}"`
-            : `"${tag.split('@')[0]}": "${tag.split('@')[1]}"`,
-        )
+        .map((tag) => `"${tag.package}": "${tag.version}"`)
         .join(',\n') +
       '\n```';
 
     const body =
       `🫰✨ **Thanks @${payload.comment.user.login}! ${introMessage}` +
-      `${customMessage ? `${customMessage} ` : ''}` +
-      `${isGlobal ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}`;
+      customMessagePrefix +
+      `${isGlobal ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}` +
+      `${customMessageSuffix ? ` ${customMessageSuffix}` : ''}`;
 
     await octokit.rest.issues.createComment({
       ...ownerRepo,
