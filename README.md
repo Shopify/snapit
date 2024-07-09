@@ -93,11 +93,33 @@ The comment to write to trigger the creation of a snapshot.
 
 Push the changes to a branch instead of publishing to the NPM registry.
 
-**`custom_message` (optional)**
+**`custom_message_prefix` (optional)**
 
 Custom message to added to the beginning of the release GitHub comment.
+By default a generic message is shown: "Test the snapshots by updating your package.json with the newly published versions:"
+
+**`custom_message_suffix` (optional)**
+
+Custom message to added to the end of the release GitHub comment.
+
+**`global_install` (optional)**
+
+If true, the generated GitHub comment will show the command to install your packages globally.
+Otherwise, the default behaviour is to show a json example to update your local dependencies.
+
+**`github_comment_included_packages` (optional)**
+
+In workspaces where many packages are deployed, use this filter if you only want to include some of them in the release GitHub comment.
+(To specify multiple packages, separate using commas)
 
 ## Changelog
+
+**`v0.0.13`**
+
+- Add `global_install` to show global npm installation instructions on the generated GitHub comment.
+- Add `github_comment_included_packages` to allow including just some packages on the generated GitHub comment.
+- Rename `custom_message` to `custom_message_prefix`
+- Add `custom_message_suffix`
 
 **`v0.0.12`**
 
