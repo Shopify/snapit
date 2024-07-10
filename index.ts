@@ -202,12 +202,11 @@ try {
       ]);
     }
 
-    const filteredSnapshots = snapshots.filter((snapshot: Snapshot) => {
-      return (
-        !packageOutputFilter ||
-        packageOutputFilter.some((filter) => snapshot.package === filter)
-      );
-    });
+    const filteredSnapshots = packageOutputFilter
+      ? snapshots.filter((snapshot: Snapshot) => {
+          return packageOutputFilter.includes(snapshot.package);
+        })
+      : snapshots;
     const multiple = filteredSnapshots.length > 1;
 
     const introMessage = branch
