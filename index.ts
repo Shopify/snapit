@@ -31,15 +31,21 @@ try {
   };
 
   const buildScript = core.getInput('build_script');
+  const isGlobal = core.getInput('global_install') === 'true';
+  const githubCommentIncludedPackages = core.getInput(
+    'github_comment_included_packages',
+  );
   const branch = core.getInput('branch');
+  const customMessagePrefix = core.getInput('custom_message_prefix');
+  const customMessageSuffix = core.getInput('custom_message_suffix');
+  const commentCommands = core.getInput('comment_command');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const isYarn = existsSync('yarn.lock');
   const isPnpm = existsSync('pnpm-lock.yaml');
   const changesetBinary = path.join('node_modules/.bin/changeset');
   const versionPrefix = 'snapshot';
 
-  const commentCommands = core.getInput('comment_command').split(',');
-  if (commentCommands.indexOf(payload.comment.body) !== -1) {
+  if (commentCommands.split(',').indexOf(payload.comment.body) !== -1) {
     await octokit.rest.reactions.createForIssueComment({
       ...ownerRepo,
       comment_id: payload.comment.id,
@@ -113,18 +119,33 @@ try {
     await exec(changesetBinary, ['version', '--snapshot', versionPrefix]);
 
     const {packages} = await getPackages(process.cwd());
-    const snapshots = [];
+
+    interface Snapshot {
+      package: string;
+      version: string;
+      timestamp: string;
+      fullString: string;
+    }
+
+    const snapshots: Snapshot[] = [];
     packages.forEach(({packageJson}) => {
       const {name, version, private: isPrivate} = packageJson;
-      if (name && version && !isPrivate && version.includes(versionPrefix))
-        snapshots.push(`${name}@${version}`);
+      if (name && version && !isPrivate && version.includes(versionPrefix)) {
+        const timestamp = version.split('-').at(-1);
+        snapshots.push({
+          package: name,
+          version,
+          timestamp,
+          fullString: `${name}@${version}`,
+        });
+      }
     });
 
     if (!snapshots.length) {
       throw new Error('Changeset publish did not create new tags.');
     }
 
-    const snapshotTimestamp = snapshots[0].split('-').at(-1);
+    const snapshotTimestamp = snapshots[0].timestamp;
 
     // Run after `changeset version` so build scripts can use updated versions
     if (buildScript) {
@@ -183,30 +204,48 @@ try {
       ]);
     }
 
-    const multiple = snapshots.length > 1;
+    const filteredSnapshots = githubCommentIncludedPackages
+      ? snapshots.filter((snapshot: Snapshot) =>
+          githubCommentIncludedPackages
+            .split(',')
+            .some((filter) => snapshot.package === filter),
+        )
+      : snapshots;
+    const multiple = filteredSnapshots.length > 1;
 
     const introMessage = branch
       ? `Your snapshot${multiple ? 's are' : ' is'} being published.**\n\n`
       : `Your snapshot${multiple ? 's have' : ' has'} been published to npm.**\n\n`;
 
-    const customMessage = core.getInput('custom_message');
+    const globalInstallMessage = isYarn
+      ? 'yarn global add'
+      : isPnpm
+        ? 'pnpm i -g'
+        : 'npm i -g';
+
+    const globalPackagesMessage =
+      '```bash\n' +
+      filteredSnapshots
+        .map((pkg) => `${globalInstallMessage} ${pkg.fullString}`)
+        .join('\n') +
+      '\n```';
+
+    const localDependenciesMessage =
+      '```json\n' +
+      filteredSnapshots
+        .map((tag) => `"${tag.package}": "${tag.version}"`)
+        .join(',\n') +
+      '\n```';
+
+    const defaultMessage = isGlobal
+      ? `Test the snapshot by intalling your package globally:`
+      : `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:`;
 
     const body =
       `🫰✨ **Thanks @${payload.comment.user.login}! ${introMessage}` +
-      `${customMessage ? `${customMessage} ` : ''}` +
-      `Test the snapshot${
-        multiple ? 's' : ''
-      } by updating your \`package.json\` ` +
-      `with the newly published version${multiple ? 's' : ''}:\n` +
-      '```json\n' +
-      snapshots
-        .map((tag) =>
-          tag.startsWith('@')
-            ? `"@${tag.substring(1).split('@')[0]}": "${tag.substring(1).split('@')[1]}"`
-            : `"${tag.split('@')[0]}": "${tag.split('@')[1]}"`,
-        )
-        .join(',\n') +
-      '\n```';
+      `${customMessagePrefix ? customMessagePrefix + '  ' : ''}${defaultMessage}\n` +
+      `${isGlobal ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}` +
+      `${customMessageSuffix ? `\n\n${customMessageSuffix}` : ''}`;
 
     await octokit.rest.issues.createComment({
       ...ownerRepo,
