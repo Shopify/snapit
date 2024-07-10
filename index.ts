@@ -237,7 +237,7 @@ try {
         .join(',\n') +
       '\n```';
 
-    const defaultMessage = globalInstallMessage
+    const defaultMessage = isGlobal
       ? `Test the snapshot by intalling your package globally:`
       : `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:`;
 
