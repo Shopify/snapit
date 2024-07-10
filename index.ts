@@ -32,18 +32,20 @@ try {
 
   const buildScript = core.getInput('build_script');
   const isGlobal = core.getInput('global_install') === 'true';
-  const packageOutputFilter = core
-    .getInput('github_comment_included_packages')
-    .split(',');
+  const githubCommentIncludedPackages = core.getInput(
+    'github_comment_included_packages',
+  );
   const branch = core.getInput('branch');
+  const customMessagePrefix = core.getInput('custom_message_prefix');
+  const customMessageSuffix = core.getInput('custom_message_suffix');
+  const commentCommands = core.getInput('comment_command');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const isYarn = existsSync('yarn.lock');
   const isPnpm = existsSync('pnpm-lock.yaml');
   const changesetBinary = path.join('node_modules/.bin/changeset');
   const versionPrefix = 'snapshot';
 
-  const commentCommands = core.getInput('comment_command').split(',');
-  if (commentCommands.indexOf(payload.comment.body) !== -1) {
+  if (commentCommands.split(',').indexOf(payload.comment.body) !== -1) {
     await octokit.rest.reactions.createForIssueComment({
       ...ownerRepo,
       comment_id: payload.comment.id,
@@ -202,24 +204,18 @@ try {
       ]);
     }
 
-    const filteredSnapshots = snapshots.filter((snapshot: Snapshot) => {
-      return (
-        !packageOutputFilter ||
-        packageOutputFilter.some((filter) => snapshot.package === filter)
-      );
-    });
+    const filteredSnapshots = githubCommentIncludedPackages
+      ? snapshots.filter((snapshot: Snapshot) =>
+          githubCommentIncludedPackages
+            .split(',')
+            .some((filter) => snapshot.package === filter),
+        )
+      : snapshots;
     const multiple = filteredSnapshots.length > 1;
 
     const introMessage = branch
       ? `Your snapshot${multiple ? 's are' : ' is'} being published.**\n\n`
       : `Your snapshot${multiple ? 's have' : ' has'} been published to npm.**\n\n`;
-
-    const defaultPrefix = `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:\n`;
-
-    const inputPrefix = core.getInput('custom_message_prefix');
-    const customMessagePrefix =
-      inputPrefix.length > 0 ? `${inputPrefix}\n` : defaultPrefix;
-    const customMessageSuffix = core.getInput('custom_message_suffix');
 
     const globalInstallMessage = isYarn
       ? 'yarn global add'
@@ -232,7 +228,7 @@ try {
       filteredSnapshots
         .map((pkg) => `${globalInstallMessage} ${pkg.fullString}`)
         .join('\n') +
-      '\n```\n\n';
+      '\n```';
 
     const localDependenciesMessage =
       '```json\n' +
@@ -241,11 +237,15 @@ try {
         .join(',\n') +
       '\n```';
 
+    const defaultMessage = isGlobal
+      ? `Test the snapshot by intalling your package globally:`
+      : `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:`;
+
     const body =
       `🫰✨ **Thanks @${payload.comment.user.login}! ${introMessage}` +
-      customMessagePrefix +
+      `${customMessagePrefix ? customMessagePrefix + '  ' : ''}${defaultMessage}\n` +
       `${isGlobal ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}` +
-      `${customMessageSuffix ? ` ${customMessageSuffix}` : ''}`;
+      `${customMessageSuffix ? `\n\n${customMessageSuffix}` : ''}`;
 
     await octokit.rest.issues.createComment({
       ...ownerRepo,
