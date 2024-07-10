@@ -45,10 +45,6 @@ try {
   const changesetBinary = path.join('node_modules/.bin/changeset');
   const versionPrefix = 'snapshot';
 
-  core.debug(
-    `Input for githubCommentIncludedPackages: "${githubCommentIncludedPackages}"`,
-  );
-
   if (commentCommands.split(',').indexOf(payload.comment.body) !== -1) {
     await octokit.rest.reactions.createForIssueComment({
       ...ownerRepo,
@@ -208,8 +204,6 @@ try {
       ]);
     }
 
-    core.debug(`🫰 Snapshots: ${snapshots}`);
-
     const filteredSnapshots = githubCommentIncludedPackages
       ? snapshots.filter((snapshot: Snapshot) =>
           githubCommentIncludedPackages
@@ -218,8 +212,6 @@ try {
         )
       : snapshots;
     const multiple = filteredSnapshots.length > 1;
-
-    core.debug(`🐬 Filtered Snapshots: ${filteredSnapshots}`);
 
     const introMessage = branch
       ? `Your snapshot${multiple ? 's are' : ' is'} being published.**\n\n`
@@ -245,13 +237,13 @@ try {
         .join(',\n') +
       '\n```';
 
+    const defaultMessage = globalInstallMessage
+      ? `Test the snapshot by intalling your package globally:`
+      : `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:`;
+
     const body =
       `🫰✨ **Thanks @${payload.comment.user.login}! ${introMessage}` +
-      `${
-        customMessagePrefix
-          ? customMessagePrefix
-          : `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:`
-      }\n` +
+      `${customMessagePrefix ? customMessagePrefix + '  ' : ''}${defaultMessage}\n` +
       `${isGlobal ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}` +
       `${customMessageSuffix ? `\n\n${customMessageSuffix}` : ''}`;
 
