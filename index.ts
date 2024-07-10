@@ -204,9 +204,13 @@ try {
 
     console.log('🫰 Snapshots:', snapshots);
 
-    const filteredSnapshots = githubCommentIncludedPackages ? snapshots.filter((snapshot: Snapshot) =>
-        githubCommentIncludedPackages.some((filter) => snapshot.package === filter)
-    ) : snapshots;
+    const filteredSnapshots = githubCommentIncludedPackages
+      ? snapshots.filter((snapshot: Snapshot) =>
+          githubCommentIncludedPackages.some(
+            (filter) => snapshot.package === filter,
+          ),
+        )
+      : snapshots;
     const multiple = filteredSnapshots.length > 1;
 
     console.log('🐬 Filtered Snapshots:', filteredSnapshots);
