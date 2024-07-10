@@ -32,7 +32,7 @@ try {
 
   const buildScript = core.getInput('build_script');
   const isGlobal = core.getInput('global_install') === 'true';
-  const packageOutputFilter = core
+  const githubCommentIncludedPackages = core
     .getInput('github_comment_included_packages')
     .split(',');
   const branch = core.getInput('branch');
@@ -202,13 +202,14 @@ try {
       ]);
     }
 
-    const filteredSnapshots = snapshots.filter((snapshot: Snapshot) => {
-      return (
-        !packageOutputFilter ||
-        packageOutputFilter.some((filter) => snapshot.package === filter)
-      );
-    });
+    console.log('🫰 Snapshots:', snapshots);
+
+    const filteredSnapshots = githubCommentIncludedPackages ? snapshots.filter((snapshot: Snapshot) =>
+        githubCommentIncludedPackages.some((filter) => snapshot.package === filter)
+    ) : snapshots;
     const multiple = filteredSnapshots.length > 1;
+
+    console.log('🐬 Filtered Snapshots:', filteredSnapshots);
 
     const introMessage = branch
       ? `Your snapshot${multiple ? 's are' : ' is'} being published.**\n\n`
