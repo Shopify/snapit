@@ -10,9 +10,9 @@ inputs:
   branch:
     description: Push the changes to a branch instead of publishing to the NPM registry.
   custom_message_prefix:
-    description: Custom message added to the beginning of the release GitHub comment. By default a generic message is shown.
+    description: Custom message added to the beginning of the snapit GitHub comment. By default a generic message is shown.
   custom_message_suffix:
-    description: Custom message added to the end of the release GitHub comment.
+    description: Custom message added to the end of the snapit GitHub comment.
   global_install:
     description: If true, the GitHub comment will show instructions to install a global npm package instead of the normal JSON dependencies.
   github_comment_included_packages:
