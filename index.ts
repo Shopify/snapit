@@ -7,6 +7,13 @@ import {getPackages} from '@manypkg/get-packages';
 
 const silentOption = {silent: true};
 
+const {payload} = github.context;
+const ownerRepo = {
+  owner: payload.repository.owner.login,
+  repo: payload.repository.name,
+};
+const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+
 try {
   if (!process.env.GITHUB_TOKEN) {
     throw new Error(
@@ -14,7 +21,6 @@ try {
     );
   }
 
-  const {payload} = github.context;
   if (
     !payload.comment ||
     !payload.repository ||
@@ -24,11 +30,6 @@ try {
   ) {
     throw new Error('No comment, repository, or issue found in the payload');
   }
-
-  const ownerRepo = {
-    owner: payload.repository.owner.login,
-    repo: payload.repository.name,
-  };
 
   const buildScript = core.getInput('build_script');
   const isGlobal = core.getInput('global_install') === 'true';
@@ -260,5 +261,11 @@ try {
     });
   }
 } catch (error) {
+  // If error, update the original comment with an emoji
+  await octokit.rest.reactions.createForIssueComment({
+    ...ownerRepo,
+    comment_id: payload.comment.id,
+    content: '-1',
+  });
   core.setFailed(error.message);
 }
