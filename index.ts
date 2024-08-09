@@ -261,6 +261,7 @@ try {
     });
   }
 } catch (error) {
+  console.log(error)
   // If error, update the original comment with an emoji
   await octokit.rest.reactions.createForIssueComment({
     ...ownerRepo,
