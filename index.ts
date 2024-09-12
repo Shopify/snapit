@@ -129,8 +129,8 @@ try {
 
     const snapshots: Snapshot[] = [];
     packages.forEach(({packageJson}) => {
-      const {name, version, private: isPrivate} = packageJson;
-      if (name && version && !isPrivate && version.includes(versionPrefix)) {
+      const {name, version, publishConfig} = packageJson;
+      if (name && version && publishConfig && version.includes(versionPrefix)) {
         const timestamp = version.split('-').at(-1);
         snapshots.push({
           package: name,
