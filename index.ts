@@ -152,7 +152,10 @@ try {
       const commands = buildScript.split('&&').map((cmd) => cmd.trim());
       for (const cmd of commands) {
         const [cmdName, ...cmdArgs] = cmd.split(/\s+/);
-        await exec(cmdName, cmdArgs);
+        try {
+          await exec(cmdName, cmdArgs);
+        } catch (error) {
+          throw new Error(`Failed to run ${cmdName} ${cmdArgs.join(' ')}: ${error.message}`);
       }
     }
 
