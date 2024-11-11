@@ -6,7 +6,7 @@
 
 > Create a snapshot NPM release with `/snapit` comment in a PR
 
-This GitHub action allows for automation of [Chagesets Snapshot Release](https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md) with the comment `/snapit` in a pull request. Snapshot releases are a way to release your changes for testing without updating the versions.
+This GitHub action allows for automation of [Changesets Snapshot Release](https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md) with the comment `/snapit` in a pull request. Snapshot releases are a way to release your changes for testing without updating the versions.
 
 ## Usage
 
