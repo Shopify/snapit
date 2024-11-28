@@ -155,112 +155,115 @@ try {
         try {
           await exec(cmdName, cmdArgs);
         } catch (error) {
-          throw new Error(`Failed to run ${cmdName} ${cmdArgs.join(' ')}: ${error.message}`);
+          throw new Error(
+            `Failed to run ${cmdName} ${cmdArgs.join(' ')}: ${error.message}`,
+          );
+        }
       }
-    }
 
-    if (branch) {
-      // We all think this is weird
-      // Context: https://github.com/orgs/community/discussions/26560
-      await exec('git', [
-        'config',
-        '--global',
-        'user.email',
-        '41898282+github-actions[bot]@users.noreply.github.com',
-      ]);
-      await exec('git', [
-        'config',
-        '--global',
-        'user.name',
-        'github-actions[bot]',
-      ]);
-      await exec('git', ['add', '.']);
-      await exec('git', [
-        'commit',
-        '-m',
-        `${payload.issue.title} ${versionPrefix}-${snapshotTimestamp}`,
-      ]);
-      await exec('git', ['checkout', '-b', branch]);
-      await exec('git', ['push', '--force', 'origin', branch]);
-    } else {
-      if (!process.env.NPM_TOKEN) {
-        throw new Error(
-          'Please provide the NPM_TOKEN to the snapit GitHub action',
+      if (branch) {
+        // We all think this is weird
+        // Context: https://github.com/orgs/community/discussions/26560
+        await exec('git', [
+          'config',
+          '--global',
+          'user.email',
+          '41898282+github-actions[bot]@users.noreply.github.com',
+        ]);
+        await exec('git', [
+          'config',
+          '--global',
+          'user.name',
+          'github-actions[bot]',
+        ]);
+        await exec('git', ['add', '.']);
+        await exec('git', [
+          'commit',
+          '-m',
+          `${payload.issue.title} ${versionPrefix}-${snapshotTimestamp}`,
+        ]);
+        await exec('git', ['checkout', '-b', branch]);
+        await exec('git', ['push', '--force', 'origin', branch]);
+      } else {
+        if (!process.env.NPM_TOKEN) {
+          throw new Error(
+            'Please provide the NPM_TOKEN to the snapit GitHub action',
+          );
+        }
+
+        await exec(
+          'bash',
+          [
+            '-c',
+            `echo "//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN}" > "$HOME/.npmrc"`,
+          ],
+          silentOption,
         );
+
+        await exec(changesetBinary, [
+          'publish',
+          '--no-git-tags',
+          '--snapshot',
+          '--tag',
+          versionPrefix,
+        ]);
       }
 
-      await exec(
-        'bash',
-        [
-          '-c',
-          `echo "//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN}" > "$HOME/.npmrc"`,
-        ],
-        silentOption,
-      );
+      const filteredSnapshots = githubCommentIncludedPackages
+        ? snapshots.filter((snapshot: Snapshot) =>
+            githubCommentIncludedPackages
+              .split(',')
+              .some((filter) => snapshot.package === filter),
+          )
+        : snapshots;
+      const multiple = filteredSnapshots.length > 1;
 
-      await exec(changesetBinary, [
-        'publish',
-        '--no-git-tags',
-        '--snapshot',
-        '--tag',
-        versionPrefix,
-      ]);
+      const introMessage = branch
+        ? `Your snapshot${multiple ? 's are' : ' is'} being published.**\n\n`
+        : `Your snapshot${multiple ? 's have' : ' has'} been published to npm.**\n\n`;
+
+      const globalInstallMessage = isYarn
+        ? 'yarn global add'
+        : isPnpm
+          ? 'pnpm i -g'
+          : 'npm i -g';
+
+      const globalPackagesMessage =
+        '```bash\n' +
+        filteredSnapshots
+          .map((pkg) => `${globalInstallMessage} ${pkg.fullString}`)
+          .join('\n') +
+        '\n```';
+
+      const localDependenciesMessage =
+        '```json\n' +
+        filteredSnapshots
+          .map((tag) => `"${tag.package}": "${tag.version}"`)
+          .join(',\n') +
+        '\n```';
+
+      const defaultMessage = isGlobal
+        ? `Test the snapshot by installing your package globally:`
+        : `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:`;
+
+      const body =
+        `🫰✨ **Thanks @${payload.comment.user.login}! ${introMessage}` +
+        `${customMessagePrefix ? customMessagePrefix + '  ' : ''}${defaultMessage}\n` +
+        `${isGlobal ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}` +
+        `${customMessageSuffix ? `\n\n${customMessageSuffix}` : ''}`;
+
+      await octokit.rest.issues.createComment({
+        ...ownerRepo,
+        issue_number: payload.issue.number,
+        body,
+      });
+
+      await octokit.rest.reactions.createForIssueComment({
+        ...ownerRepo,
+        comment_id: payload.comment.id,
+        content: 'rocket',
+      });
     }
-
-    const filteredSnapshots = githubCommentIncludedPackages
-      ? snapshots.filter((snapshot: Snapshot) =>
-          githubCommentIncludedPackages
-            .split(',')
-            .some((filter) => snapshot.package === filter),
-        )
-      : snapshots;
-    const multiple = filteredSnapshots.length > 1;
-
-    const introMessage = branch
-      ? `Your snapshot${multiple ? 's are' : ' is'} being published.**\n\n`
-      : `Your snapshot${multiple ? 's have' : ' has'} been published to npm.**\n\n`;
-
-    const globalInstallMessage = isYarn
-      ? 'yarn global add'
-      : isPnpm
-        ? 'pnpm i -g'
-        : 'npm i -g';
-
-    const globalPackagesMessage =
-      '```bash\n' +
-      filteredSnapshots
-        .map((pkg) => `${globalInstallMessage} ${pkg.fullString}`)
-        .join('\n') +
-      '\n```';
-
-    const localDependenciesMessage =
-      '```json\n' +
-      filteredSnapshots
-        .map((tag) => `"${tag.package}": "${tag.version}"`)
-        .join(',\n') +
-      '\n```';
-
-    const defaultMessage = isGlobal
-      ? `Test the snapshot by installing your package globally:`
-      : `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:`;
-
-    const body =
-      `🫰✨ **Thanks @${payload.comment.user.login}! ${introMessage}` +
-      `${customMessagePrefix ? customMessagePrefix + '  ' : ''}${defaultMessage}\n` +
-      `${isGlobal ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}` +
-      `${customMessageSuffix ? `\n\n${customMessageSuffix}` : ''}`;
-
-    await octokit.rest.issues.createComment({
-      ...ownerRepo,
-      issue_number: payload.issue.number,
-      body,
-    });
-
-    await octokit.rest.reactions.createForIssueComment({
-      ...ownerRepo,
-      comment_id: payload.comment.id,
-      content: 'rocket',
-    });
   }
 } catch (error) {
   core.setFailed(error.message);
