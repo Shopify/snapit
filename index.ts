@@ -241,7 +241,7 @@ try {
       '\n```';
 
     const defaultMessage = isGlobal
-      ? `Test the snapshot by intalling your package globally:`
+      ? `Test the snapshot by installing your package globally:`
       : `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:`;
 
     const body =
