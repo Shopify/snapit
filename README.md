@@ -118,7 +118,7 @@ To contribute a change, bug fix or feature to snapit:
 
 1. Make a new branch `my-branch`
 1. Make the changes you need
-1. Run `pnpm build`
+1. Run `npm run build`
 1. Push your changes to the branch
 1. In your repositories `main` branch point the `.github/snapit.yml` file to the `shopify/snapit` branch `uses: Shopify/snapit@my-branch`
 1. Create a pull request with changeset and write `/snapit` as a comment in the pull request

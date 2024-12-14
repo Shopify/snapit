@@ -1,0 +1,4 @@
+name: snapit
+up:
+  - node:
+      version: v22.12.0
