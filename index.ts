@@ -36,10 +36,16 @@ try {
     'github_comment_included_packages',
   );
   const branch = core.getInput('branch');
+  const workingDirectory = core.getInput('working_directory');
   const customMessagePrefix = core.getInput('custom_message_prefix');
   const customMessageSuffix = core.getInput('custom_message_suffix');
   const commentCommands = core.getInput('comment_command');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+
+  if (workingDirectory) {
+    process.chdir(workingDirectory);
+  }
+
   const isYarn = existsSync('yarn.lock');
   const isPnpm = existsSync('pnpm-lock.yaml');
   const changesetBinary = path.join('node_modules/.bin/changeset');
