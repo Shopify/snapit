@@ -112,6 +112,10 @@ Otherwise, the default behaviour is to show a json example to update your local 
 In workspaces where many packages are deployed, use this filter if you only want to include some of them in the release GitHub comment.
 (To specify multiple packages, separate using commas)
 
+**`working_directory` (optional)**
+
+If specified, the action will run all commands for snapit in the specified directory.
+
 ## Contributing
 
 To contribute a change, bug fix or feature to snapit:
