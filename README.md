@@ -116,6 +116,10 @@ In workspaces where many packages are deployed, use this filter if you only want
 
 If specified, the action will run all commands for snapit in the specified directory.
 
+**`testing` (optional)**
+
+If true, the action will not terminate if specific payload data is missing. This allows you to test the action on pull requests.
+
 ## Contributing
 
 To contribute a change, bug fix or feature to snapit:

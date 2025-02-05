@@ -15,20 +15,33 @@ try {
   }
 
   const {payload} = github.context;
-  if (
-    !payload.comment ||
-    !payload.repository ||
-    !payload.repository.owner.login ||
-    !payload.issue ||
-    !payload.issue.title
-  ) {
-    throw new Error('No comment, repository, or issue found in the payload');
+  const testing = core.getInput('testing') === 'true';
+
+  // When testing=true, use pull_request event context instead of issue_comment
+  if (testing) {
+    if (!payload.pull_request) {
+      throw new Error('No pull request found in the payload when testing=true');
+    }
+  } else {
+    if (
+      !payload.comment ||
+      !payload.repository ||
+      !payload.repository.owner.login ||
+      !payload.issue
+    ) {
+      throw new Error('No comment, repository, or issue found in the payload');
+    }
   }
 
   const ownerRepo = {
     owner: payload.repository.owner.login,
     repo: payload.repository.name,
   };
+
+  // Get PR number from either testing or comment context
+  const prNumber = testing
+    ? payload.pull_request.number
+    : payload.issue.number;
 
   const buildScript = core.getInput('build_script');
   const isGlobal = core.getInput('global_install') === 'true';
@@ -51,14 +64,15 @@ try {
   const changesetBinary = path.join('node_modules/.bin/changeset');
   const versionPrefix = 'snapshot';
 
-  if (commentCommands.split(',').indexOf(payload.comment.body) !== -1) {
+  // Skip comment command check when testing
+  if (!testing && commentCommands.split(',').indexOf(payload.comment.body) !== -1) {
     await octokit.rest.reactions.createForIssueComment({
       ...ownerRepo,
       comment_id: payload.comment.id,
       content: 'eyes',
     });
 
-    // Check if user has permissions to run /snapit
+    // Check if user has permissions to run /snapit (only when not testing)
     const actorPermission = (
       await octokit.rest.repos.getCollaboratorPermissionLevel({
         ...ownerRepo,
@@ -71,16 +85,17 @@ try {
         'Only users with write permission to the repository can run /snapit';
       await octokit.rest.issues.createComment({
         ...ownerRepo,
-        issue_number: payload.issue.number,
+        issue_number: prNumber,
         body: errorMessage,
       });
       throw new Error(errorMessage);
+      }
     }
 
     // Check if pull request is from a forked repo
     const pullRequest = await octokit.rest.pulls.get({
       ...ownerRepo,
-      pull_number: payload.issue.number,
+      pull_number: prNumber,
     });
 
     if (payload.repository.full_name !== pullRequest.data.head.repo.full_name) {
@@ -91,7 +106,7 @@ try {
 
     await exec(
       'gh',
-      ['pr', 'checkout', payload.issue.number.toString()],
+      ['pr', 'checkout', prNumber.toString()],
       silentOption,
     );
 
@@ -254,17 +269,19 @@ try {
       : `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:`;
 
     const body =
-      `🫰✨ **Thanks @${payload.comment.user.login}! ${introMessage}` +
+      `🫰✨ **Thanks ${testing ? 'for testing' : `@${payload.comment.user.login}`}! ${introMessage}` +
       `${customMessagePrefix ? customMessagePrefix + '  ' : ''}${defaultMessage}\n` +
       `${isGlobal ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}` +
       `${customMessageSuffix ? `\n\n${customMessageSuffix}` : ''}`;
 
     await octokit.rest.issues.createComment({
       ...ownerRepo,
-      issue_number: payload.issue.number,
+      issue_number: prNumber,
       body,
     });
 
+  // Skip reaction when testing
+  if (!testing) {
     await octokit.rest.reactions.createForIssueComment({
       ...ownerRepo,
       comment_id: payload.comment.id,
