@@ -88,7 +88,7 @@ try {
         issue_number: prNumber,
         body: errorMessage,
       });
-      throw new Error(errorMessage);
+        throw new Error(errorMessage);
       }
     }
 
