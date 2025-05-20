@@ -30,6 +30,7 @@ try {
     repo: payload.repository.name,
   };
 
+  const postInstallScript = core.getInput('post_install_script');
   const buildScript = core.getInput('build_script');
   const isGlobal = core.getInput('global_install') === 'true';
   const githubCommentIncludedPackages = core.getInput(
@@ -122,6 +123,11 @@ try {
       await exec('npm', ['ci']);
     }
 
+    // Run post install script after dependencies are installed
+    if (postInstallScript) {
+      runScript(postInstallScript);
+    }
+
     await exec(changesetBinary, ['version', '--snapshot', versionPrefix]);
 
     const {packages} = await getPackages(process.cwd());
@@ -155,17 +161,7 @@ try {
 
     // Run after `changeset version` so build scripts can use updated versions
     if (buildScript) {
-      const commands = buildScript.split('&&').map((cmd) => cmd.trim());
-      for (const cmd of commands) {
-        const [cmdName, ...cmdArgs] = cmd.split(/\s+/);
-        try {
-          await exec(cmdName, cmdArgs);
-        } catch (error) {
-          throw new Error(
-            `Failed to run ${cmdName} ${cmdArgs.join(' ')}: ${error.message}`,
-          );
-        }
-      }
+      runScript(buildScript);
     }
 
     if (branch) {
@@ -273,4 +269,19 @@ try {
   }
 } catch (error) {
   core.setFailed(error.message);
+}
+
+
+async function runScript(script: string) {
+  const commands = script.split('&&').map((cmd) => cmd.trim());
+  for (const cmd of commands) {
+    const [cmdName, ...cmdArgs] = cmd.split(/\s+/);
+    try {
+      await exec(cmdName, cmdArgs);
+    } catch (error) {
+      throw new Error(
+        `Failed to run ${cmdName} ${cmdArgs.join(' ')}: ${error.message}`,
+      );
+    }
+  }
 }

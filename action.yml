@@ -4,6 +4,8 @@ author: Shopify
 inputs:
   build_script:
     description: Build script for building the repository before publishing.
+  post_install_script:
+    description: Script to run after dependencies are installed.
   comment_command:
     description: A comma seperated list of comment commands to trigger the action
     default: '/snapit'
