@@ -79,19 +79,19 @@ The `GITHUB_TOKEN` is needed for changesets to look up the current changeset whe
 
 A `NPM_TOKEN` needs to be created and added to the repository to (publish packages from GitHub actions to the npm registry)[https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry].
 
-## Action workflow options
+## GitHub Action Inputs
 
-| Option                             | Default   | Description                                                                                                                                                          |
-| ---------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `build_script`                     | -         | The build script to run before publishing.                                                                                                                           |
-| `comment_command`                  | `/snapit` | The comment to write to trigger the creation of a snapshot.                                                                                                          |
-| `branch`                           | -         | Push the changes to a branch instead of publishing to the NPM registry.                                                                                              |
-| `custom_message_prefix`            | -         | Custom message to add to the beginning of the release GitHub comment. Default: "Test the snapshots by updating your package.json with the newly published versions:" |
-| `custom_message_suffix`            | -         | Custom message to add to the end of the release GitHub comment.                                                                                                      |
-| `global_install`                   | `false`   | If true, the generated GitHub comment will show the command to install your packages globally. Otherwise, shows a JSON example to update local dependencies.         |
-| `github_comment_included_packages` | -         | Filter to include specific packages in the release GitHub comment. Separate multiple packages with commas.                                                           |
-| `working_directory`                | -         | If specified, the action will run all commands for snapit in the specified directory.                                                                                |
-| `post_install_script`              | -         | If specified, will run a script after dependencies are installed.                                                                                                    |
+| Inputs (All Optional) | Description                                                                                                                                                          |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `comment_command`     | Default: `/snapit`. Comma seperated list of comments to write to trigger the creation of a snapshot.                                                                 |
+| `comment_prefix`      | Custom message to add to the beginning of the release GitHub comment. Default: "Test the snapshots by updating your package.json with the newly published versions:" |
+| `comment_suffix`      | Custom message to add to the end of the release GitHub comment.                                                                                                      |
+| `comment_packages`    | Filter to include specific packages in the release GitHub comment. Separate multiple packages with commas.                                                           |
+| `comment_is_global`   | If true, the generated GitHub comment will show the command to install your packages globally. Otherwise, shows a JSON example to update local dependencies.         |
+| `cwd`                 | If specified, the action will run all commands for snapit in the specified directory.                                                                                |
+| `branch`              | Push the changes to a branch instead of publishing to the NPM registry.                                                                                              |
+| `post_install_script` | If specified, will run a script after dependencies are installed.                                                                                                    |
+| `build_script`        | The build script to run before publishing.                                                                                                                           |
 
 ## Contributing
 
