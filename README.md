@@ -81,44 +81,18 @@ A `NPM_TOKEN` needs to be created and added to the repository to (publish packag
 
 ## Action workflow options
 
-**`build_script` (optional)**
-
-The build script to run before publishing.
-
-**`comment_command` (optional, default `/snapit`)**
-
-The comment to write to trigger the creation of a snapshot.
-
-**`branch` (optional)**
-
-Push the changes to a branch instead of publishing to the NPM registry.
-
-**`custom_message_prefix` (optional)**
-
-Custom message to added to the beginning of the release GitHub comment.
-By default a generic message is shown: "Test the snapshots by updating your package.json with the newly published versions:"
-
-**`custom_message_suffix` (optional)**
-
-Custom message to added to the end of the release GitHub comment.
-
-**`global_install` (optional)**
-
-If true, the generated GitHub comment will show the command to install your packages globally.
-Otherwise, the default behaviour is to show a json example to update your local dependencies.
-
-**`github_comment_included_packages` (optional)**
-
-In workspaces where many packages are deployed, use this filter if you only want to include some of them in the release GitHub comment.
-(To specify multiple packages, separate using commas)
-
-**`working_directory` (optional)**
-
-If specified, the action will run all commands for snapit in the specified directory.
-
-**`post_install_script` (optional)**
-
-If specified, will run a script after dependencies are installed.
+| Option                             | Default                  | Description                                                                                                                                                          |
+| ---------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `build_script`                     | -                        | The build script to run before publishing.                                                                                                                           |
+| `comment_command`                  | `/snapit`                | The comment to write to trigger the creation of a snapshot.                                                                                                          |
+| `branch`                           | -                        | Push the changes to a branch instead of publishing to the NPM registry.                                                                                              |
+| `custom_message_prefix`            | -                        | Custom message to add to the beginning of the release GitHub comment. Default: "Test the snapshots by updating your package.json with the newly published versions:" |
+| `custom_message_suffix`            | -                        | Custom message to add to the end of the release GitHub comment.                                                                                                      |
+| `global_install`                   | `false`                  | If true, the generated GitHub comment will show the command to install your packages globally. Otherwise, shows a JSON example to update local dependencies.         |
+| `github_comment_included_packages` | -                        | Filter to include specific packages in the release GitHub comment. Separate multiple packages with commas.                                                           |
+| `working_directory`                | -                        | If specified, the action will run all commands for snapit in the specified directory.                                                                                |
+| `post_install_script`              | -                        | If specified, will run a script after dependencies are installed.                                                                                                    |
+| `release_branch`                   | `changeset-release/main` | If specified, will use this branch name in place of the default                                                                                                      |
 
 ## Contributing
 
@@ -133,8 +107,13 @@ To contribute a change, bug fix or feature to snapit:
 
 ## Changelog
 
+**`v0.0.15`**
+
+- Add `release_branch` to configure the default release branch. Default is `changeset-release/main`.
+
 **`v0.0.14`**
 
+- Improved error logging
 - `build_script` is now optional
 - Adds optional `working_directory` to run snap it commands from
 - Adds optional `post_install` script
