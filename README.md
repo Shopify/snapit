@@ -6,7 +6,7 @@
 
 > Create a snapshot NPM release with `/snapit` comment in a PR
 
-This GitHub action allows for automation of [Chagesets Snapshot Release](https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md) with the comment `/snapit` in a pull request. Snapshot releases are a way to release your changes for testing without updating the versions.
+This GitHub action allows for automation of [Changesets Snapshot Release](https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md) with the comment `/snapit` in a pull request. Snapshot releases are a way to release your changes for testing without updating the versions.
 
 ## Usage
 
@@ -112,18 +112,32 @@ Otherwise, the default behaviour is to show a json example to update your local 
 In workspaces where many packages are deployed, use this filter if you only want to include some of them in the release GitHub comment.
 (To specify multiple packages, separate using commas)
 
+**`working_directory` (optional)**
+
+If specified, the action will run all commands for snapit in the specified directory.
+
+**`post_install_script` (optional)**
+
+If specified, will run a script after dependencies are installed.
+
 ## Contributing
 
 To contribute a change, bug fix or feature to snapit:
 
 1. Make a new branch `my-branch`
 1. Make the changes you need
-1. Run `pnpm build`
+1. Run `npm run build`
 1. Push your changes to the branch
 1. In your repositories `main` branch point the `.github/snapit.yml` file to the `shopify/snapit` branch `uses: Shopify/snapit@my-branch`
 1. Create a pull request with changeset and write `/snapit` as a comment in the pull request
 
 ## Changelog
+
+**`v0.0.14`**
+
+- `build_script` is now optional
+- Adds optional `working_directory` to run snap it commands from
+- Adds optional `post_install` script
 
 **`v0.0.13`**
 
