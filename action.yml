@@ -2,7 +2,7 @@ name: snapit-release
 description: Create a snapshot NPM release with `/snapit` comment in a PR
 author: Shopify
 inputs:
-  comment_command:
+  trigger_comment:
     description: A comma seperated list of comment commands to trigger the action
     default: '/snapit'
   comment_prefix:

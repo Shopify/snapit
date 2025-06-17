@@ -37,7 +37,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         with:
           build_script: pnpm build # Optional
-          comment_command: /snapit # Default value not required
+          trigger_comment: /snapit # Default value not required
 ```
 
 **Deploy to branch**
@@ -66,7 +66,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           branch: snapshot-release
-          comment_command: /snapit # Default value not required
+          trigger_comment: /snapit # Default value not required
 ```
 
 ## Environment Variables
@@ -83,7 +83,7 @@ A `NPM_TOKEN` needs to be created and added to the repository to (publish packag
 
 | Inputs (All Optional) | Description                                                                                                                                                          |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `comment_command`     | Default: `/snapit`. Comma seperated list of comments to write to trigger the creation of a snapshot.                                                                 |
+| `trigger_comment`     | Default: `/snapit`. Comma seperated list of comments to write to trigger the creation of a snapshot.                                                                 |
 | `comment_prefix`      | Custom message to add to the beginning of the release GitHub comment. Default: "Test the snapshots by updating your package.json with the newly published versions:" |
 | `comment_suffix`      | Custom message to add to the end of the release GitHub comment.                                                                                                      |
 | `comment_packages`    | Filter to include specific packages in the release GitHub comment. Separate multiple packages with commas.                                                           |
