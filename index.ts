@@ -5,7 +5,7 @@ import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {getPackages} from '@manypkg/get-packages';
 
-const silentOption = {silent: true};
+const execOptions: {silent: boolean; cwd?: string} = {silent: true};
 
 try {
   if (!process.env.GITHUB_TOKEN) {
@@ -45,6 +45,7 @@ try {
 
   if (workingDirectory) {
     process.chdir(workingDirectory);
+    execOptions.cwd = workingDirectory;
   }
 
   const isYarn = existsSync('yarn.lock');
@@ -93,13 +94,13 @@ try {
     await exec(
       'gh',
       ['pr', 'checkout', payload.issue.number.toString()],
-      silentOption,
+      execOptions,
     );
 
     const {stdout: currentBranch} = await getExecOutput(
       'git',
       ['branch', '--show-current'],
-      silentOption,
+      execOptions,
     );
 
     // Because changeset entries are consumed and removed on the
@@ -110,7 +111,7 @@ try {
       await exec(
         'git',
         ['checkout', 'origin/main', '--', '.changeset'],
-        silentOption,
+        execOptions,
       );
     }
 
@@ -200,7 +201,7 @@ try {
           '-c',
           `echo "//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN}" > "$HOME/.npmrc"`,
         ],
-        silentOption,
+        execOptions,
       );
 
       await exec(changesetBinary, [
