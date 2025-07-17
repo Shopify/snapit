@@ -103,10 +103,10 @@ try {
     );
 
     // Because changeset entries are consumed and removed on the
-    // 'changeset-release/main' branch, we need to reset the files
+    // 'changeset-release/*' branch, we need to reset the files
     // so the following 'changeset version --snapshot' command will
     // regenerate the package version bumps with the snapshot releases
-    if (currentBranch.trim() === 'changeset-release/main') {
+    if (currentBranch.trim().startsWith('changeset-release/')) {
       await exec(
         'git',
         ['checkout', 'origin/main', '--', '.changeset'],
