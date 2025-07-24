@@ -42,6 +42,7 @@ try {
   const customMessageSuffix = core.getInput('custom_message_suffix');
   const commentCommands = core.getInput('comment_command');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+  const releaseBranch = core.getInput('release_branch') ?? 'changeset-release/main';
 
   if (workingDirectory) {
     process.chdir(workingDirectory);
@@ -106,7 +107,7 @@ try {
     // 'changeset-release/main' branch, we need to reset the files
     // so the following 'changeset version --snapshot' command will
     // regenerate the package version bumps with the snapshot releases
-    if (currentBranch.trim() === 'changeset-release/main') {
+    if (currentBranch.trim() === releaseBranch) {
       await exec(
         'git',
         ['checkout', 'origin/main', '--', '.changeset'],
