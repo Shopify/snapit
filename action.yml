@@ -24,6 +24,10 @@ inputs:
   release_branch:
     description: If specified, will use this branch name in place of the default `changeset-release/main` branch.
     default: 'changeset-release/main'
+  package_manager:
+    description: Package manager to show for global installation (yarn/npm/pnpm). If not specified, will auto-detect based on lock files.
+  shopify_registry:
+    description: Shopify NPM registry URL (e.g. https://registry.npmjs.org). Will be added as --@shopify:registry= to global installation command.
 
 runs:
   using: node20
