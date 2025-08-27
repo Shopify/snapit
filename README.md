@@ -77,7 +77,7 @@ The `GITHUB_TOKEN` is needed for changesets to look up the current changeset whe
 
 **`NPM_TOKEN`**
 
-A `NPM_TOKEN` needs to be created and added to the repository to (publish packages from GitHub actions to the npm registry)[https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry].
+A `NPM_TOKEN` needs to be created and added to the repository to [publish packages from GitHub actions to the npm registry](https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry).
 
 ## Action workflow options
 
