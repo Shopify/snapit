@@ -77,21 +77,22 @@ The `GITHUB_TOKEN` is needed for changesets to look up the current changeset whe
 
 **`NPM_TOKEN`**
 
-A `NPM_TOKEN` needs to be created and added to the repository to (publish packages from GitHub actions to the npm registry)[https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry].
+A `NPM_TOKEN` needs to be created and added to the repository to [publish packages from GitHub actions to the npm registry](https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry).
 
 ## Action workflow options
 
-| Option                             | Default   | Description                                                                                                                                                          |
-| ---------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `build_script`                     | -         | The build script to run before publishing.                                                                                                                           |
-| `comment_command`                  | `/snapit` | The comment to write to trigger the creation of a snapshot.                                                                                                          |
-| `branch`                           | -         | Push the changes to a branch instead of publishing to the NPM registry.                                                                                              |
-| `custom_message_prefix`            | -         | Custom message to add to the beginning of the release GitHub comment. Default: "Test the snapshots by updating your package.json with the newly published versions:" |
-| `custom_message_suffix`            | -         | Custom message to add to the end of the release GitHub comment.                                                                                                      |
-| `global_install`                   | `false`   | If true, the generated GitHub comment will show the command to install your packages globally. Otherwise, shows a JSON example to update local dependencies.         |
-| `github_comment_included_packages` | -         | Filter to include specific packages in the release GitHub comment. Separate multiple packages with commas.                                                           |
-| `working_directory`                | -         | If specified, the action will run all commands for snapit in the specified directory.                                                                                |
-| `post_install_script`              | -         | If specified, will run a script after dependencies are installed.                                                                                                    |
+| Option                             | Default                  | Description                                                                                                                                                          |
+| ---------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `build_script`                     | -                        | The build script to run before publishing.                                                                                                                           |
+| `comment_command`                  | `/snapit`                | The comment to write to trigger the creation of a snapshot.                                                                                                          |
+| `branch`                           | -                        | Push the changes to a branch instead of publishing to the NPM registry.                                                                                              |
+| `custom_message_prefix`            | -                        | Custom message to add to the beginning of the release GitHub comment. Default: "Test the snapshots by updating your package.json with the newly published versions:" |
+| `custom_message_suffix`            | -                        | Custom message to add to the end of the release GitHub comment.                                                                                                      |
+| `global_install`                   | `false`                  | If true, the generated GitHub comment will show the command to install your packages globally. Otherwise, shows a JSON example to update local dependencies.         |
+| `github_comment_included_packages` | -                        | Filter to include specific packages in the release GitHub comment. Separate multiple packages with commas.                                                           |
+| `working_directory`                | -                        | If specified, the action will run all commands for snapit in the specified directory.                                                                                |
+| `post_install_script`              | -                        | If specified, will run a script after dependencies are installed.                                                                                                    |
+| `release_branch`                   | `changeset-release/main` | If specified, will use this branch name in place of the default                                                                                                      |
 
 ## Contributing
 
@@ -105,6 +106,10 @@ To contribute a change, bug fix or feature to snapit:
 1. Create a pull request with changeset and write `/snapit` as a comment in the pull request
 
 ## Changelog
+
+**`v0.0.15`**
+
+- Add `release_branch` to configure the default release branch. Default is `changeset-release/main`.
 
 **`v0.0.14`**
 
