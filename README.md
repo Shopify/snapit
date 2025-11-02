@@ -77,7 +77,7 @@ The `GITHUB_TOKEN` is needed for changesets to look up the current changeset whe
 
 **`NPM_TOKEN`**
 
-A `NPM_TOKEN` needs to be created and added to the repository to (publish packages from GitHub actions to the npm registry)[https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry].
+A `NPM_TOKEN` needs to be created and added to the repository to [publish packages from GitHub actions to the npm registry](https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry).
 
 ## GitHub Action Inputs
 
@@ -92,6 +92,7 @@ A `NPM_TOKEN` needs to be created and added to the repository to (publish packag
 | `branch`              | Push the changes to a branch instead of publishing to the NPM registry.                                                                                              |
 | `post_install_script` | If specified, will run a script after dependencies are installed.                                                                                                    |
 | `build_script`        | The build script to run before publishing.                                                                                                                           |
+| `release_branch`      | Default: `changeset-release/main`. If specified, will use this branch name in place of the default                                                                   |
 
 ## Contributing
 
@@ -105,6 +106,10 @@ To contribute a change, bug fix or feature to snapit:
 1. Create a pull request with changeset and write `/snapit` as a comment in the pull request
 
 ## Changelog
+
+**`v0.0.15`**
+
+- Add `release_branch` to configure the default release branch. Default is `changeset-release/main`.
 
 **`v0.0.14`**
 

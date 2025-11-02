@@ -40,6 +40,8 @@ try {
   const commentPackages = core.getInput('comment_packages');
   const cwd = core.getInput('cwd');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+  const releaseBranch =
+    core.getInput('release_branch') ?? 'changeset-release/main';
 
   if (cwd) {
     process.chdir(cwd);
@@ -104,7 +106,7 @@ try {
     // 'changeset-release/main' branch, we need to reset the files
     // so the following 'changeset version --snapshot' command will
     // regenerate the package version bumps with the snapshot releases
-    if (currentBranch.trim() === 'changeset-release/main') {
+    if (currentBranch.trim() === releaseBranch) {
       await exec(
         'git',
         ['checkout', 'origin/main', '--', '.changeset'],

@@ -21,6 +21,9 @@ inputs:
     description: Build script for building the repository before publishing.
   post_install_script:
     description: Script to run after dependencies are installed.
+  release_branch:
+    description: If specified, will use this branch name in place of the default `changeset-release/main` branch.
+    default: 'changeset-release/main'
 
 runs:
   using: node20
