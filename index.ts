@@ -30,25 +30,23 @@ try {
     repo: payload.repository.name,
   };
 
+  const branch = core.getInput('branch');
+  const commentCommand = core.getInput('comment_command');
+  const commentPrefix = core.getInput('commment_prefix');
+  const commentSuffix = core.getInput('commment_suffix');
+  const commentIsGlobal = core.getInput('comment_is_global') === 'true';
   const postInstallScript = core.getInput('post_install_script');
   const buildScript = core.getInput('build_script');
-  const isGlobal = core.getInput('global_install') === 'true';
-  const githubCommentIncludedPackages = core.getInput(
-    'github_comment_included_packages',
-  );
-  const branch = core.getInput('branch');
-  const workingDirectory = core.getInput('working_directory');
-  const customMessagePrefix = core.getInput('custom_message_prefix');
-  const customMessageSuffix = core.getInput('custom_message_suffix');
-  const commentCommands = core.getInput('comment_command');
+  const commentPackages = core.getInput('comment_packages');
   const specifiedPackageManager = core.getInput('package_manager');
   const shopifyRegistryUrl = core.getInput('shopify_registry');
+  const cwd = core.getInput('cwd');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const releaseBranch =
     core.getInput('release_branch') ?? 'changeset-release/main';
 
-  if (workingDirectory) {
-    process.chdir(workingDirectory);
+  if (cwd) {
+    process.chdir(cwd);
   }
 
   // Auto-detect based on lock files
@@ -59,7 +57,7 @@ try {
   const changesetBinary = path.join('node_modules/.bin/changeset');
   const versionPrefix = 'snapshot';
 
-  if (commentCommands.split(',').indexOf(payload.comment.body) !== -1) {
+  if (commentCommand.split(',').indexOf(payload.comment.body) !== -1) {
     await octokit.rest.reactions.createForIssueComment({
       ...ownerRepo,
       comment_id: payload.comment.id,
@@ -217,9 +215,9 @@ try {
       ]);
     }
 
-    const filteredSnapshots = githubCommentIncludedPackages
+    const filteredSnapshots = commentPackages
       ? snapshots.filter((snapshot: Snapshot) =>
-          githubCommentIncludedPackages
+          commentPackages
             .split(',')
             .some((filter) => snapshot.package === filter),
         )
@@ -254,15 +252,15 @@ try {
         .join(',\n') +
       '\n```';
 
-    const defaultMessage = isGlobal
+    const defaultMessage = commentIsGlobal
       ? `Test the snapshot by installing your package globally:`
       : `Test the snapshot${multiple ? 's' : ''} by updating your \`package.json\` with the newly published version${multiple ? 's' : ''}:`;
 
     const body =
       `🫰✨ **Thanks @${payload.comment.user.login}! ${introMessage}` +
-      `${customMessagePrefix ? customMessagePrefix + '  ' : ''}${defaultMessage}\n` +
-      `${isGlobal ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}` +
-      `${customMessageSuffix ? `\n\n${customMessageSuffix}` : ''}`;
+      `${commentPrefix ? commentPrefix + '  ' : ''}${defaultMessage}\n` +
+      `${commentIsGlobal ? `${globalPackagesMessage}` : `${localDependenciesMessage}`}` +
+      `${commentSuffix ? `\n\n${commentSuffix}` : ''}`;
 
     await octokit.rest.issues.createComment({
       ...ownerRepo,
