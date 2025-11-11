@@ -13,6 +13,10 @@ inputs:
     description: Which packages to include in the final output. All pacakges are still published, but only those in this list are shown in the final message. If empty, all packages are included.
   comment_is_global:
     description: If true, the generated GitHub comment will show the command to install your packages globally. Otherwise, shows a JSON example to update local dependencies.
+  comment_package_manager:
+    description: Package manager to show for global installation (yarn/npm/pnpm). If not specified, will auto-detect based on lock files.
+  comment_shopify_registry:
+    description: Shopify NPM registry URL (e.g. https://registry.npmjs.org). Will be added as --@shopify:registry= to global installation command.
   cwd:
     description: If specified, the action will run all commands for snapit in the specified directory.
   branch:
@@ -24,10 +28,6 @@ inputs:
   release_branch:
     description: If specified, will use this branch name in place of the default `changeset-release/main` branch.
     default: 'changeset-release/main'
-  package_manager:
-    description: Package manager to show for global installation (yarn/npm/pnpm). If not specified, will auto-detect based on lock files.
-  shopify_registry:
-    description: Shopify NPM registry URL (e.g. https://registry.npmjs.org). Will be added as --@shopify:registry= to global installation command.
 
 runs:
   using: node20

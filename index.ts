@@ -38,8 +38,8 @@ try {
   const postInstallScript = core.getInput('post_install_script');
   const buildScript = core.getInput('build_script');
   const commentPackages = core.getInput('comment_packages');
-  const specifiedPackageManager = core.getInput('package_manager');
-  const shopifyRegistryUrl = core.getInput('shopify_registry');
+  const commentPackageManager = core.getInput('comment_package_manager');
+  const commentShopifyRegistry = core.getInput('comment_shopify_registry');
   const cwd = core.getInput('cwd');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const releaseBranch =
@@ -229,13 +229,13 @@ try {
       : `Your snapshot${multiple ? 's have' : ' has'} been published to npm.**\n\n`;
 
     const messagePackageManager =
-      specifiedPackageManager?.toLowerCase() ?? packageManager;
+      commentPackageManager?.toLowerCase() ?? packageManager;
     let globalInstallMessage =
       messagePackageManager === 'yarn'
         ? 'yarn global add'
         : `${messagePackageManager} i -g`;
-    if (shopifyRegistryUrl) {
-      globalInstallMessage = `${globalInstallMessage} --@shopify:registry=${shopifyRegistryUrl}`;
+    if (commentShopifyRegistry) {
+      globalInstallMessage = `${globalInstallMessage} --@shopify:registry=${commentShopifyRegistry}`;
     }
 
     const globalPackagesMessage =
