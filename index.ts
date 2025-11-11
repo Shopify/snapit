@@ -39,7 +39,7 @@ try {
   const buildScript = core.getInput('build_script');
   const commentPackages = core.getInput('comment_packages');
   const commentPackageManager = core.getInput('comment_package_manager');
-  const commentShopifyRegistry = core.getInput('comment_shopify_registry');
+  const commentCommandFlags = core.getInput('comment_command_flags');
   const cwd = core.getInput('cwd');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const releaseBranch =
@@ -234,8 +234,8 @@ try {
       messagePackageManager === 'yarn'
         ? 'yarn global add'
         : `${messagePackageManager} i -g`;
-    if (commentShopifyRegistry) {
-      globalInstallMessage = `${globalInstallMessage} --@shopify:registry=${commentShopifyRegistry}`;
+    if (commentCommandFlags) {
+      globalInstallMessage = `${globalInstallMessage} ${commentCommandFlags}`;
     }
 
     const globalPackagesMessage =
