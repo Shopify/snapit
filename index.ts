@@ -32,8 +32,8 @@ try {
 
   const branch = core.getInput('branch');
   const commentCommand = core.getInput('comment_command');
-  const commentPrefix = core.getInput('commment_prefix');
-  const commentSuffix = core.getInput('commment_suffix');
+  const commentPrefix = core.getInput('comment_prefix');
+  const commentSuffix = core.getInput('comment_suffix');
   const commentIsGlobal = core.getInput('comment_is_global') === 'true';
   const postInstallScript = core.getInput('post_install_script');
   const buildScript = core.getInput('build_script');
