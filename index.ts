@@ -38,6 +38,8 @@ try {
   const postInstallScript = core.getInput('post_install_script');
   const buildScript = core.getInput('build_script');
   const commentPackages = core.getInput('comment_packages');
+  const commentPackageManager = core.getInput('comment_package_manager');
+  const commentCommandFlags = core.getInput('comment_command_flags');
   const cwd = core.getInput('cwd');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const releaseBranch =
@@ -47,8 +49,11 @@ try {
     process.chdir(cwd);
   }
 
-  const isYarn = existsSync('yarn.lock');
-  const isPnpm = existsSync('pnpm-lock.yaml');
+  // Auto-detect based on lock files
+  let packageManager = 'npm';
+  if (existsSync('yarn.lock')) packageManager = 'yarn';
+  else if (existsSync('pnpm-lock.yaml')) packageManager = 'pnpm';
+
   const changesetBinary = path.join('node_modules/.bin/changeset');
   const versionPrefix = 'snapshot';
 
@@ -115,12 +120,10 @@ try {
     }
 
     // Running install to get the changesets package from the project
-    if (isYarn) {
-      await exec('yarn', ['install', '--frozen-lockfile']);
-    } else if (isPnpm) {
-      await exec('pnpm', ['install', '--frozen-lockfile']);
-    } else {
+    if (packageManager === 'npm') {
       await exec('npm', ['ci']);
+    } else {
+      await exec(packageManager, ['install', '--frozen-lockfile']);
     }
 
     // Run post install script after dependencies are installed
@@ -225,11 +228,15 @@ try {
       ? `Your snapshot${multiple ? 's are' : ' is'} being published.**\n\n`
       : `Your snapshot${multiple ? 's have' : ' has'} been published to npm.**\n\n`;
 
-    const globalInstallMessage = isYarn
-      ? 'yarn global add'
-      : isPnpm
-        ? 'pnpm i -g'
-        : 'npm i -g';
+    const messagePackageManager =
+      commentPackageManager?.toLowerCase() ?? packageManager;
+    let globalInstallMessage =
+      messagePackageManager === 'yarn'
+        ? 'yarn global add'
+        : `${messagePackageManager} i -g`;
+    if (commentCommandFlags) {
+      globalInstallMessage = `${globalInstallMessage} ${commentCommandFlags}`;
+    }
 
     const globalPackagesMessage =
       '```bash\n' +

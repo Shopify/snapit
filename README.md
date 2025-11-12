@@ -38,6 +38,7 @@ jobs:
         with:
           build_script: pnpm build # Optional
           trigger_comment: /snapit # Default value not required
+          comment_package_manager: pnpm # Optional: override auto-detection
 ```
 
 **Deploy to branch**
@@ -67,6 +68,7 @@ jobs:
         with:
           branch: snapshot-release
           trigger_comment: /snapit # Default value not required
+          comment_package_manager: pnpm # Optional: override auto-detection
 ```
 
 ## Environment Variables
@@ -81,18 +83,20 @@ A `NPM_TOKEN` needs to be created and added to the repository to [publish packag
 
 ## GitHub Action Inputs
 
-| Inputs (All Optional) | Description                                                                                                                                                          |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trigger_comment`     | Default: `/snapit`. Comma seperated list of comments to write to trigger the creation of a snapshot.                                                                 |
-| `comment_prefix`      | Custom message to add to the beginning of the release GitHub comment. Default: "Test the snapshots by updating your package.json with the newly published versions:" |
-| `comment_suffix`      | Custom message to add to the end of the release GitHub comment.                                                                                                      |
-| `comment_packages`    | Filter to include specific packages in the release GitHub comment. Separate multiple packages with commas.                                                           |
-| `comment_is_global`   | If true, the generated GitHub comment will show the command to install your packages globally. Otherwise, shows a JSON example to update local dependencies.         |
-| `cwd`                 | If specified, the action will run all commands for snapit in the specified directory.                                                                                |
-| `branch`              | Push the changes to a branch instead of publishing to the NPM registry.                                                                                              |
-| `post_install_script` | If specified, will run a script after dependencies are installed.                                                                                                    |
-| `build_script`        | The build script to run before publishing.                                                                                                                           |
-| `release_branch`      | Default: `changeset-release/main`. If specified, will use this branch name in place of the default                                                                   |
+| Inputs (All Optional)     | Description                                                                                                                                                          |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trigger_comment`         | Default: `/snapit`. Comma seperated list of comments to write to trigger the creation of a snapshot.                                                                 |
+| `comment_prefix`          | Custom message to add to the beginning of the release GitHub comment. Default: "Test the snapshots by updating your package.json with the newly published versions:" |
+| `comment_suffix`          | Custom message to add to the end of the release GitHub comment.                                                                                                      |
+| `comment_packages`        | Filter to include specific packages in the release GitHub comment. Separate multiple packages with commas.                                                           |
+| `comment_is_global`       | If true, the generated GitHub comment will show the command to install your packages globally. Otherwise, shows a JSON example to update local dependencies.         |
+| `comment_package_manager` | Package manager to show for global installation (`yarn`, `npm`, or `pnpm`). If not specified, auto-detects based on lock files.                                      |
+| `comment_command_flags`   | Additional flags to add to the command, like `--prefer-dedupe`. Empty by default.                                                                                    |
+| `cwd`                     | If specified, the action will run all commands for snapit in the specified directory.                                                                                |
+| `branch`                  | Push the changes to a branch instead of publishing to the NPM registry.                                                                                              |
+| `post_install_script`     | If specified, will run a script after dependencies are installed.                                                                                                    |
+| `build_script`            | The build script to run before publishing.                                                                                                                           |
+| `release_branch`          | Default: `changeset-release/main`. If specified, will use this branch name in place of the default                                                                   |
 
 ## Contributing
 
@@ -106,6 +110,11 @@ To contribute a change, bug fix or feature to snapit:
 1. Create a pull request with changeset and write `/snapit` as a comment in the pull request
 
 ## Changelog
+
+**`v0.0.16`**
+
+- Add `comment_package_manager` to specify which package manager to use instead of auto-detecting
+- Add `comment_command_flags` to specify additional flags to add to the command, like `--prefer-dedupe`. Empty by default.
 
 **`v0.0.15`**
 
