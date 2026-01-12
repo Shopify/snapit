@@ -188,19 +188,6 @@ try {
       await exec('git', ['checkout', '-b', branch]);
       await exec('git', ['push', '--force', 'origin', branch]);
     } else {
-      // Only configure .npmrc with NPM_TOKEN if provided.
-      // For OIDC authentication (Trusted Publishers), NPM_TOKEN is not required.
-      if (process.env.NPM_TOKEN) {
-        await exec(
-          'bash',
-          [
-            '-c',
-            `echo "//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN}" > "$HOME/.npmrc"`,
-          ],
-          silentOption,
-        );
-      }
-
       await exec(changesetBinary, [
         'publish',
         '--no-git-tags',
