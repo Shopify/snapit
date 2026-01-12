@@ -128,10 +128,10 @@ To contribute a change, bug fix or feature to snapit:
 
 ## Changelog
 
-**`v0.0.16`**
+**`v0.1.0`**
 
-- OIDC authentication (NPM Trusted Publishers) is now required. `NPM_TOKEN` support has been removed as NPM has deprecated classic tokens.
-- Requires npm CLI version 11.5.2 or later for OIDC support.
+- **Breaking:** OIDC authentication (NPM Trusted Publishers) is now required. `NPM_TOKEN` support has been removed as NPM has deprecated classic tokens.
+- **Breaking:** Requires npm CLI version 11.5.2 or later for OIDC support.
 
 **`v0.0.15`**
 
