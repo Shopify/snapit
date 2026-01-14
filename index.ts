@@ -188,21 +188,6 @@ try {
       await exec('git', ['checkout', '-b', branch]);
       await exec('git', ['push', '--force', 'origin', branch]);
     } else {
-      if (!process.env.NPM_TOKEN) {
-        throw new Error(
-          'Please provide the NPM_TOKEN to the snapit GitHub action',
-        );
-      }
-
-      await exec(
-        'bash',
-        [
-          '-c',
-          `echo "//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN}" > "$HOME/.npmrc"`,
-        ],
-        silentOption,
-      );
-
       await exec(changesetBinary, [
         'publish',
         '--no-git-tags',

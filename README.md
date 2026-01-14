@@ -12,7 +12,11 @@ This GitHub action allows for automation of [Changesets Snapshot Release](https:
 
 Create a `.github/workflows/snapit.yml` file with the following contents.
 
-**Deploy to NPM**
+**Deploy to NPM (with OIDC authentication)**
+
+OIDC authentication using [NPM Trusted Publishers](https://docs.npmjs.com/trusted-publishers) is required as [NPM has deprecated classic tokens](https://github.blog/changelog/2025-09-29-strengthening-npm-security-important-changes-to-authentication-and-token-management/).
+
+> **Note:** OIDC requires npm CLI version 11.5.2 or later. Earlier versions will fail with cryptic errors.
 
 ```yml
 name: Snapit
@@ -26,15 +30,26 @@ jobs:
   snapit:
     name: Snapit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Checkout default branch
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Create snapshot version
         uses: Shopify/snapit@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
         with:
           build_script: pnpm build # Optional
           trigger_comment: /snapit # Default value not required
@@ -75,9 +90,15 @@ jobs:
 
 The `GITHUB_TOKEN` is needed for changesets to look up the current changeset when creating a snapshot. You can use the automatically created [`${{ secrets.GITHUB_TOKEN }}` to authenticate in the workflow job](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret).
 
-**`NPM_TOKEN`**
+**OIDC Authentication**
 
-A `NPM_TOKEN` needs to be created and added to the repository to [publish packages from GitHub actions to the npm registry](https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry).
+Use [NPM Trusted Publishers](https://docs.npmjs.com/trusted-publishers) with OIDC authentication. This is required as NPM has deprecated classic tokens. To use OIDC:
+
+1. Configure your npm package to trust your GitHub repository (see [NPM Trusted Publishers documentation](https://docs.npmjs.com/trusted-publishers))
+2. Ensure npm CLI version 11.5.2 or later is installed
+3. Add `id-token: write` permission to your workflow
+4. Use `actions/setup-node` with `registry-url: 'https://registry.npmjs.org'`
+5. Set `NPM_CONFIG_PROVENANCE: true` environment variable
 
 ## GitHub Action Inputs
 
@@ -106,6 +127,11 @@ To contribute a change, bug fix or feature to snapit:
 1. Create a pull request with changeset and write `/snapit` as a comment in the pull request
 
 ## Changelog
+
+**`v0.1.0`**
+
+- **Breaking:** Require OIDC authentication (NPM Trusted Publishers). `NPM_TOKEN` is no longer supported.
+- OIDC requires npm CLI version 11.5.2 or later
 
 **`v0.0.15`**
 
