@@ -31,7 +31,7 @@ try {
   };
 
   const branch = core.getInput('branch');
-  const commentCommand = core.getInput('comment_command');
+  const trigger_comment = core.getInput('trigger_comment');
   const commentPrefix = core.getInput('comment_prefix');
   const commentSuffix = core.getInput('comment_suffix');
   const commentIsGlobal = core.getInput('comment_is_global') === 'true';
@@ -57,7 +57,7 @@ try {
   const changesetBinary = path.join('node_modules/.bin/changeset');
   const versionPrefix = 'snapshot';
 
-  if (commentCommand.split(',').indexOf(payload.comment.body) !== -1) {
+  if (trigger_comment.split(',').indexOf(payload.comment.body) !== -1) {
     await octokit.rest.reactions.createForIssueComment({
       ...ownerRepo,
       comment_id: payload.comment.id,
