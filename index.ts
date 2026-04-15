@@ -214,7 +214,7 @@ try {
       : `Your snapshot${multiple ? 's have' : ' has'} been published to npm.**\n\n`;
 
     const messagePackageManager =
-      commentPackageManager?.toLowerCase() ?? packageManager;
+      commentPackageManager?.toLowerCase() || packageManager;
     let globalInstallMessage =
       messagePackageManager === 'yarn'
         ? 'yarn global add'
