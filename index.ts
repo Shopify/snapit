@@ -31,13 +31,15 @@ try {
   };
 
   const branch = core.getInput('branch');
-  const commentCommand = core.getInput('comment_command');
+  const trigger_comment = core.getInput('trigger_comment');
   const commentPrefix = core.getInput('comment_prefix');
   const commentSuffix = core.getInput('comment_suffix');
   const commentIsGlobal = core.getInput('comment_is_global') === 'true';
   const postInstallScript = core.getInput('post_install_script');
   const buildScript = core.getInput('build_script');
   const commentPackages = core.getInput('comment_packages');
+  const commentPackageManager = core.getInput('comment_package_manager');
+  const commentCommandFlags = core.getInput('comment_command_flags');
   const cwd = core.getInput('cwd');
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
   const releaseBranch =
@@ -47,12 +49,15 @@ try {
     process.chdir(cwd);
   }
 
-  const isYarn = existsSync('yarn.lock');
-  const isPnpm = existsSync('pnpm-lock.yaml');
+  // Auto-detect based on lock files
+  let packageManager = 'npm';
+  if (existsSync('yarn.lock')) packageManager = 'yarn';
+  else if (existsSync('pnpm-lock.yaml')) packageManager = 'pnpm';
+
   const changesetBinary = path.join('node_modules/.bin/changeset');
   const versionPrefix = 'snapshot';
 
-  if (commentCommand.split(',').indexOf(payload.comment.body) !== -1) {
+  if (trigger_comment.split(',').indexOf(payload.comment.body) !== -1) {
     await octokit.rest.reactions.createForIssueComment({
       ...ownerRepo,
       comment_id: payload.comment.id,
@@ -115,12 +120,10 @@ try {
     }
 
     // Running install to get the changesets package from the project
-    if (isYarn) {
-      await exec('yarn', ['install', '--frozen-lockfile']);
-    } else if (isPnpm) {
-      await exec('pnpm', ['install', '--frozen-lockfile']);
-    } else {
+    if (packageManager === 'npm') {
       await exec('npm', ['ci']);
+    } else {
+      await exec(packageManager, ['install', '--frozen-lockfile']);
     }
 
     // Run post install script after dependencies are installed
@@ -190,8 +193,7 @@ try {
     } else {
       await exec(changesetBinary, [
         'publish',
-        '--no-git-tags',
-        '--snapshot',
+        '--no-git-tag',
         '--tag',
         versionPrefix,
       ]);
@@ -210,11 +212,15 @@ try {
       ? `Your snapshot${multiple ? 's are' : ' is'} being published.**\n\n`
       : `Your snapshot${multiple ? 's have' : ' has'} been published to npm.**\n\n`;
 
-    const globalInstallMessage = isYarn
-      ? 'yarn global add'
-      : isPnpm
-        ? 'pnpm i -g'
-        : 'npm i -g';
+    const messagePackageManager =
+      commentPackageManager?.toLowerCase() || packageManager;
+    let globalInstallMessage =
+      messagePackageManager === 'yarn'
+        ? 'yarn global add'
+        : `${messagePackageManager} i -g`;
+    if (commentCommandFlags) {
+      globalInstallMessage = `${globalInstallMessage} ${commentCommandFlags}`;
+    }
 
     const globalPackagesMessage =
       '```bash\n' +
