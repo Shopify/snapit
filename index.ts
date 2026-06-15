@@ -193,8 +193,7 @@ try {
     } else {
       await exec(changesetBinary, [
         'publish',
-        '--no-git-tags',
-        '--snapshot',
+        '--no-git-tag',
         '--tag',
         versionPrefix,
       ]);
